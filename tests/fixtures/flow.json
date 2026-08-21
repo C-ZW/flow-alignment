@@ -1,0 +1,60 @@
+{
+  "version": 2,
+  "flows": [
+    {
+      "id": "plan-comparison",
+      "title": "Choose a plan",
+      "task": "The customer is deciding between two plans and wants to know what changes.",
+      "initialState": "pricing",
+      "states": [
+        {
+          "id": "pricing",
+          "title": "Pricing",
+          "step": 1,
+          "instruction": "Where does the difference between the plans become clear?",
+          "transitions": [
+            "chosen"
+          ]
+        },
+        {
+          "id": "chosen",
+          "title": "Plan chosen",
+          "step": 2,
+          "terminal": true,
+          "instruction": "What the product confirms after a plan is picked.",
+          "transitions": [
+            "pricing"
+          ]
+        }
+      ],
+      "hypothesis": "Putting the two plans side by side makes the difference legible without opening a comparison table."
+    },
+    {
+      "id": "billing-questions",
+      "title": "Answer a billing question",
+      "task": "The customer has a question about proration before committing.",
+      "initialState": "faq-closed",
+      "states": [
+        {
+          "id": "faq-closed",
+          "title": "FAQ",
+          "step": 1,
+          "instruction": "Is the FAQ findable from the pricing page?",
+          "transitions": [
+            "faq-open"
+          ]
+        },
+        {
+          "id": "faq-open",
+          "title": "Answer shown",
+          "step": 2,
+          "terminal": true,
+          "instruction": "Does the answer settle the question?",
+          "transitions": [
+            "faq-closed"
+          ]
+        }
+      ]
+    }
+  ]
+}

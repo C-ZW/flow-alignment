@@ -1,0 +1,47 @@
+{
+  "version": 3,
+  "id": "plan-comparison",
+  "reference": {
+    "path": "tests/fixtures/reference.json",
+    "id": "example-site"
+  },
+  "adaptations": [
+    {
+      "flowId": "plan-comparison",
+      "journeyId": "journey-compare-plans",
+      "mode": "wireframe",
+      "hypothesis": "Putting the two plans side by side makes the difference legible without opening a comparison table.",
+      "task": "The customer is deciding between two plans and wants to know what changes.",
+      "preserve": [
+        "Side-by-side plan comparison",
+        "One primary action per plan"
+      ],
+      "abstract": [
+        "Brand styling and marketing copy",
+        "Unrelated navigation"
+      ],
+      "assumptions": [
+        "The destination after selecting a plan was not observed; that screen is invented."
+      ],
+      "claims": [
+        "This flow adapts one documented journey. It is not a clone of the source website."
+      ]
+    },
+    {
+      "flowId": "billing-questions",
+      "journeyId": "journey-open-faq",
+      "mode": "wireframe",
+      "task": "The customer has a question about proration before committing.",
+      "preserve": [
+        "The FAQ expanding in place rather than navigating away"
+      ],
+      "abstract": [
+        "Source copy",
+        "Brand styling"
+      ],
+      "claims": [
+        "This flow adapts one observed journey."
+      ]
+    }
+  ]
+}

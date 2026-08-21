@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "id": "example-site",
+  "source": {
+    "url": "https://example.com/pricing",
+    "canonicalUrl": "https://example.com/pricing",
+    "capturedAt": "2026-08-21T10:00:00+08:00"
+  },
+  "coverage": {
+    "viewports": [{ "name": "desktop", "width": 1440, "height": 1000 }],
+    "sweeps": ["initial-render", "scroll"]
+  },
+  "evidence": [
+    {
+      "id": "ev-page",
+      "kind": "rendered-page",
+      "method": "browser",
+      "url": "https://example.com/pricing",
+      "capturedAt": "2026-08-21T10:00:00+08:00",
+      "viewport": "desktop"
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs-plan-cards",
+      "kind": "observed",
+      "summary": "Two plans are presented side by side with a primary call to action on each.",
+      "evidence": ["ev-page"]
+    }
+  ],
+  "journeys": [
+    {
+      "id": "journey-compare-plans",
+      "title": "Compare two plans and choose one",
+      "entry": "Pricing page hero",
+      "steps": ["Open the pricing page", "Compare the two plan cards", "Select a plan"],
+      "outcome": "The destination after selecting a plan was not observed.",
+      "evidence": ["ev-page"],
+      "status": "partial"
+    },
+    {
+      "id": "journey-open-faq",
+      "title": "Open the billing FAQ",
+      "entry": "Link below the plan cards",
+      "steps": ["Scroll past the plan cards", "Open the billing FAQ"],
+      "outcome": "The FAQ section expanded in place.",
+      "evidence": ["ev-page"],
+      "status": "observed"
+    }
+  ],
+  "limitations": ["Only the initial desktop render was captured; no mobile sweep."]
+}
