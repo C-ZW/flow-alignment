@@ -11,7 +11,7 @@ from types import ModuleType
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / ".claude" / "skills"
-TEMPLATE = SKILLS / "flow-validation-prototype" / "assets" / "prototype-template.html"
+TEMPLATE = SKILLS / "flow-alignment-prototype" / "assets" / "prototype-template.html"
 
 
 def load_module(relative_path: str) -> ModuleType:
@@ -23,8 +23,9 @@ def load_module(relative_path: str) -> ModuleType:
     return module
 
 
-flow_spec = load_module("flow-validation-prototype/scripts/validate_flow_spec.py")
-adaptation = load_module("flow-validation-prototype/scripts/validate_adaptation.py")
+flow_spec = load_module("flow-alignment-prototype/scripts/validate_flow_spec.py")
+adaptation = load_module("flow-alignment-prototype/scripts/validate_adaptation.py")
+review_apply = load_module("flow-alignment-prototype/scripts/apply_review_session.py")
 reference = load_module("website-flow-reference/scripts/validate_reference.py")
 
 

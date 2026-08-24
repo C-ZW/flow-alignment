@@ -1,0 +1,20 @@
+{
+  "name": "flow-alignment",
+  "interface": {
+    "displayName": "Flow Alignment"
+  },
+  "plugins": [
+    {
+      "name": "flow-alignment",
+      "source": {
+        "source": "local",
+        "path": "./plugins/flow-alignment"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

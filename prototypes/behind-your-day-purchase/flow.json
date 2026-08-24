@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "flows": [
+    {
+      "id": "behind-your-day-purchase",
+      "title": "Record a purchase and see the work estimate",
+      "task": "The person wants to record a representative purchase and see how much supply-chain work Behind Your Day estimates behind it.",
+      "entry": {
+        "state": "about-home",
+        "basis": "observed",
+        "why": "The direct public URL opens on the About page, where the hero explains the estimate and offers Add a purchase.",
+        "preconditions": [
+          "The public site has finished loading its estimation data.",
+          "This representative run starts with no saved purchase in the browser."
+        ],
+        "evidence": [
+          "ev-landing-desktop-shot",
+          "ev-landing-mobile-shot"
+        ]
+      },
+      "focus": [
+        "food-item-picker",
+        "amount-form",
+        "saved-estimate"
+      ],
+      "review": [
+        {
+          "aspect": "entry-point",
+          "status": "open",
+          "proposal": "Start at the public About page because the direct URL capture opens there and the hero is the first place the purchase journey is offered.",
+          "states": [
+            "about-home"
+          ],
+          "question": "Do people actually begin on About, or do they arrive directly on Add record or Dashboard from another link?",
+          "basis": "Observed direct URL render; audience entry behavior was not measured."
+        },
+        {
+          "aspect": "navigation",
+          "status": "open",
+          "proposal": "The representative route is About → Add record → Food & drink → Coffee & drinks → amount → Save this record.",
+          "states": [
+            "about-home",
+            "purchase-form",
+            "food-item-picker",
+            "amount-form"
+          ],
+          "question": "Is the direct hero-to-form route the expected way to reach the estimate, and is any navigation step missing?",
+          "basis": "The route and click order were observed for one representative branch."
+        },
+        {
+          "aspect": "branches",
+          "status": "open",
+          "proposal": "The prototype makes Food & drink → Coffee & drinks the walkable representative branch and leaves other categories/items for discussion; the item picker also offers its observed Back route.",
+          "states": [
+            "purchase-form",
+            "food-item-picker"
+          ],
+          "question": "Should every area and item branch lead to the same estimate pattern, and should the other categories be walked before handoff?",
+          "alternatives": [
+            "Walk a second category as a separate complete flow when its estimate context needs comparison."
+          ],
+          "basis": "All eight area buttons and three food item labels were seen; only one branch was followed end to end."
+        },
+        {
+          "aspect": "failure-recovery",
+          "status": "not-applicable",
+          "proposal": "No technical failure was observed in this journey; the transient estimation-data loading boundary is documented as a limitation rather than injected as a product branch.",
+          "states": [],
+          "basis": "Fresh desktop and mobile walks completed without a failure state."
+        },
+        {
+          "aspect": "ending-state",
+          "status": "open",
+          "proposal": "Saving leaves the person on the estimate with SAVED status and a Recent records row; Dashboard is an observed follow-on route but is outside this selected journey.",
+          "states": [
+            "saved-estimate"
+          ],
+          "question": "Is the saved result the right stopping point, or should the primary journey continue directly into Dashboard?",
+          "basis": "The saved result and Dashboard link were both observed; this artifact intentionally selects the saved-result boundary."
+        }
+      ],
+      "states": [
+        {
+          "id": "about-home",
+          "title": "About / public landing",
+          "step": 1,
+          "scope": "shell",
+          "spotlight": "entry-cta",
+          "navTargets": {
+            "add-record": "purchase-form"
+          },
+          "instruction": "Start on the public landing page. Ask whether this is where a person begins, then follow the hero's Add a purchase action.",
+          "transitions": [
+            "purchase-form"
+          ]
+        },
+        {
+          "id": "purchase-form",
+          "title": "Add record / area of life",
+          "step": 2,
+          "scope": "viewport",
+          "spotlight": "purchase-choice",
+          "instruction": "The form asks for a purchase region and area of life. Food & drink is the representative branch captured from the source.",
+          "transitions": [
+            "food-item-picker"
+          ]
+        },
+        {
+          "id": "food-item-picker",
+          "title": "Food & drink / item picker",
+          "step": 3,
+          "scope": "viewport",
+          "spotlight": "food-items",
+          "instruction": "Food & drink reveals three item choices. Walk Coffee & drinks for the representative estimate; Back returns to the area grid.",
+          "transitions": [
+            "amount-form",
+            "purchase-form"
+          ]
+        },
+        {
+          "id": "amount-form",
+          "title": "Coffee & drinks / amount",
+          "step": 4,
+          "scope": "viewport",
+          "spotlight": "amount-entry",
+          "instruction": "Review the representative $12 USD amount. The source preview updates live as the amount is entered; this wireframe keeps the value visible and makes Save this record the next declared product action.",
+          "transitions": [
+            "saved-estimate"
+          ]
+        },
+        {
+          "id": "saved-estimate",
+          "title": "Saved estimate / work behind the purchase",
+          "step": 5,
+          "terminal": true,
+          "scope": "viewport",
+          "spotlight": "saved-result",
+          "instruction": "Review the saved result: about 18 minutes, the likely range, leading industries, regional split, and the new Recent records row.",
+          "outcome": {
+            "happened": "The $12 USD Coffee & drinks purchase was saved in the browser and its statistical work estimate is shown.",
+            "changed": [
+              "Saved records: 0 → 1",
+              "Estimate: none → about 18 minutes of work",
+              "Result range: none → 11–29 minutes"
+            ],
+            "continuation": null
+          },
+          "transitions": []
+        }
+      ]
+    }
+  ]
+}

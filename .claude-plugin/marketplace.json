@@ -1,0 +1,15 @@
+{
+  "name": "flow-alignment",
+  "description": "Evidence-backed journey research and clickable flow-alignment wireframes.",
+  "owner": {
+    "name": "Flow Alignment contributors"
+  },
+  "plugins": [
+    {
+      "name": "flow-alignment",
+      "source": "./plugins/flow-alignment",
+      "description": "Research public website journeys and build clickable alignment wireframes.",
+      "version": "0.1.0"
+    }
+  ]
+}

@@ -32,19 +32,62 @@
     {
       "id": "journey-compare-plans",
       "title": "Compare two plans and choose one",
-      "entry": "Pricing page hero",
-      "steps": ["Open the pricing page", "Compare the two plan cards", "Select a plan"],
+      "entry": {
+        "description": "The pricing page hero, reached from the marketing navigation.",
+        "status": "observed",
+        "evidence": ["ev-page"]
+      },
+      "steps": [
+        {
+          "action": "Open the pricing page",
+          "destination": "Pricing",
+          "outcome": "Two plan cards render side by side above the fold.",
+          "status": "observed",
+          "evidence": ["ev-page"]
+        },
+        {
+          "action": "Compare the two plan cards",
+          "destination": "Pricing",
+          "outcome": "Each card lists its price and a short feature list.",
+          "status": "observed",
+          "evidence": ["ev-page"]
+        },
+        {
+          "action": "Select a plan",
+          "destination": "Unknown",
+          "outcome": "Not followed: selecting a plan would have started a signup.",
+          "status": "inferred",
+          "evidence": []
+        }
+      ],
       "outcome": "The destination after selecting a plan was not observed.",
-      "evidence": ["ev-page"],
       "status": "partial"
     },
     {
       "id": "journey-open-faq",
       "title": "Open the billing FAQ",
-      "entry": "Link below the plan cards",
-      "steps": ["Scroll past the plan cards", "Open the billing FAQ"],
+      "entry": {
+        "description": "The billing FAQ link below the plan cards on the pricing page.",
+        "status": "observed",
+        "evidence": ["ev-page"]
+      },
+      "steps": [
+        {
+          "action": "Scroll past the plan cards",
+          "destination": "Pricing, billing section",
+          "outcome": "A collapsed list of billing questions comes into view.",
+          "status": "observed",
+          "evidence": ["ev-page"]
+        },
+        {
+          "action": "Open the proration question",
+          "destination": "Pricing, billing section",
+          "outcome": "The answer expanded in place; the page did not navigate.",
+          "status": "observed",
+          "evidence": ["ev-page"]
+        }
+      ],
       "outcome": "The FAQ section expanded in place.",
-      "evidence": ["ev-page"],
       "status": "observed"
     }
   ],

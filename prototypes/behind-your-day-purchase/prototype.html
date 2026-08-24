@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; script-src 'unsafe-inline'; script-src-attr 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' data:; connect-src 'none'; object-src 'none'; frame-src 'none'; child-src 'none'; worker-src 'none'; manifest-src 'none'">
+  <title>Flow alignment prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <style>
+    /* ---- Sketchbook design system. Adjust product markup, keep these tokens. ---- */
+    :root {
+      --ink: #27272a; --ink-soft: #71717a; --line: #52525b; --paper: #f8f8f6;
+      --spotlight: #fbbf24; --danger: #b91c1c;
+      --open: #f59e0b; --assumed: #60a5fa; --confirmed: #4ade80; --moot: #71717a;
+      --sketch-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-width: 320px; min-height: 100vh; font-size: 18px; color: var(--ink);
+      display: grid; grid-template-columns: 292px minmax(0, 1fr);
+      background-color: var(--paper);
+      background-image: radial-gradient(#d4d4d8 1.2px, transparent 1.2px);
+      background-size: 20px 20px;
+      font-family: 'Patrick Hand', 'Comic Neue', cursive;
+    }
+    button, input, select, textarea { font: inherit; }
+    small { font-size: 13px; }
+    button { cursor: pointer; }
+    button:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex="-1"]:focus-visible {
+      outline: 3px solid var(--spotlight); outline-offset: 3px;
+    }
+
+    /* ---- Observer rail. Tooling, not product: system typography, own column. ---- */
+    .observer-hud {
+      position: sticky; top: 0; align-self: start; z-index: 100;
+      height: 100vh; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
+      padding: 12px 13px;
+      display: grid; gap: 10px; align-content: start;
+      color: #fafafa; background: #18181b; border-right: 3px solid var(--ink);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .observer-hud > *, .hud-current, .route-details { min-width: 0; }
+    .hud-section { display: grid; gap: 5px; }
+    .hud-label { color: #a1a1aa; font: 700 13px/1.4 system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+    .hud-select { width: 100%; padding: 5px 7px; font-size: 13px; color: #fff; background: #27272a; border: 1px solid var(--ink-soft); border-radius: 5px; }
+    .hud-flow-title { font: 700 14px/1.4 system-ui, sans-serif; }
+    .hud-text { margin: 0; font-size: 13px; line-height: 1.55; color: #e4e4e7; }
+    .hud-note { margin: 0; font-size: 13px; line-height: 1.5; color: #a1a1aa; }
+    .hud-section-head { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; }
+    .hud-controls { display: grid; gap: 7px; }
+    .hud-button { min-height: 36px; padding: 6px 9px; font: 600 13px/1.35 system-ui, sans-serif; color: #fafafa; background: #27272a; border: 1px solid #52525b; border-radius: 5px; }
+    .hud-button:hover:not(:disabled) { border-color: #a1a1aa; }
+    .hud-button:disabled { opacity: .4; cursor: not-allowed; }
+    .hud-button[data-pending="true"] { border-color: var(--spotlight); }
+    .hud-button[aria-pressed="true"], .hud-button[aria-expanded="true"] { color: #18181b; background: var(--spotlight); border-color: var(--spotlight); }
+    .hud-disclosure > summary, .route-details > summary, .entry-details > summary {
+      cursor: pointer; list-style: none; color: #a1a1aa; font: 600 13px/1.5 system-ui, sans-serif;
+    }
+    .hud-disclosure > summary::-webkit-details-marker, .route-details > summary::-webkit-details-marker,
+    .entry-details > summary::-webkit-details-marker { display: none; }
+    .hud-disclosure > summary::before, .route-details > summary::before,
+    .entry-details > summary::before { content: '＋ '; color: var(--spotlight); }
+    .hud-disclosure[open] > summary::before, .route-details[open] > summary::before,
+    .entry-details[open] > summary::before { content: '− '; }
+    .hud-disclosure { display: grid; width: 100%; min-width: 0; gap: 7px; }
+    .hud-disclosure > summary {
+      display: grid; width: 100%; min-width: 0;
+      grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: baseline;
+    }
+    .hud-disclosure > summary .hud-label:first-of-type { min-width: 0; }
+    .hud-disclosure[open] > summary { margin-bottom: 1px; }
+    [hidden] { display: none !important; }
+
+    /* ---- Where the journey starts, and on whose authority. "We assumed this is
+       where people begin" is exactly the
+       kind of claim a client is here to correct. ---- */
+    .entry-block { display: grid; gap: 5px; padding: 8px 10px; background: #27272a; border-left: 3px solid var(--spotlight); border-radius: 0 6px 6px 0; }
+    .entry-basis { justify-self: start; padding: 1px 7px; font: 700 13px/1.6 system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #18181b; border-radius: 999px; background: var(--moot); }
+    .entry-basis[data-basis="observed"] { background: var(--confirmed); }
+    .entry-basis[data-basis="provided"] { background: var(--assumed); }
+    .entry-basis[data-basis="assumed"] { background: var(--open); }
+    .entry-list { margin: 0; padding-left: 17px; font-size: 13px; line-height: 1.5; color: #a1a1aa; }
+    .entry-details { margin-top: 1px; }
+    .entry-details .entry-list { margin-top: 4px; }
+
+    /* ---- The step map. Position, shape, and direct navigation between screens. ---- */
+    .stepper { display: grid; gap: 3px; }
+    .step { width: 100%; display: flex; gap: 6px; padding: 5px 9px; text-align: left; font: 600 13px/1.4 system-ui, sans-serif; color: #71717a; background: transparent; border: 1px solid transparent; border-radius: 6px; cursor: pointer; }
+    .step:hover { color: #fff; border-color: #3f3f46; }
+    /* Alternative outcomes of one step are siblings, not consecutive steps. */
+    .step[data-branch="true"] { margin-left: 13px; }
+    .step[data-active="true"] { color: #18181b; background: var(--spotlight); border-color: var(--spotlight); }
+    .step-mark { flex: none; width: 13px; color: #52525b; }
+    .step[data-active="true"] .step-mark { color: #18181b; }
+    .step-name { flex: 1 1 auto; }
+    .step-focus { flex: none; color: var(--spotlight); }
+    .step[data-active="true"] .step-focus { color: #18181b; }
+    .route-details { display: grid; gap: 6px; }
+    .route-details[open] > summary { margin-bottom: 5px; }
+
+    /* ---- Product shell. Context around the flow; live only when a state says so. ---- */
+    .app-shell { width: 100%; max-width: 1180px; margin: 0 auto; padding: 28px 18px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; }
+    .sketch-card { background: #fff; border: 2px solid var(--ink); border-radius: var(--sketch-radius); box-shadow: 2px 3px 0 rgba(0, 0, 0, .08); }
+    .product-context { opacity: .5; pointer-events: none; user-select: none; }
+    .shell-header { grid-column: 1 / -1; padding: 15px 18px; display: flex; align-items: center; justify-content: space-between; }
+    .shell-nav { padding: 15px; min-height: 400px; display: grid; align-content: start; gap: 2px; }
+    .shell-link { padding: 8px 10px; text-align: left; font: inherit; color: inherit; background: none; border: 0; border-bottom: 1px dashed #a1a1aa; cursor: default; }
+    /* A link that leads somewhere in this step says so; the mask below does the
+       rest of the talking. */
+    .shell-link[data-live="true"] { cursor: pointer; }
+
+    /* ---- Interaction scope. The mask always covers what this step does not use;
+       each state names one or, when the decision spans separated evidence, a
+       small set of product regions as its spotlight.
+
+       viewport — the named decision/action region is the one hole, ringed amber.
+       shell    — when navigation is the only action, its single routed link is
+                  the one hole and receives the ring. If the page also offers a
+                  declared action, that region keeps the hole without the ring
+                  and routed navigation is punched through beside it.
+
+       A control that leads nowhere here stays under the mask. The walkthrough is
+       for confirming this journey, not for discovering which chrome is
+       decorative: getting stuck on a dead link spends the meeting on the
+       prototype instead of on the flow. ---- */
+    #product-viewport {
+      position: relative; z-index: 10; min-height: 520px; padding: 28px; background: #fff;
+      border: 3px solid var(--ink); border-radius: var(--sketch-radius);
+      box-shadow: 0 22px 45px rgba(0, 0, 0, .22);
+    }
+    #interaction-mask { position: fixed; inset: 0; z-index: 20; pointer-events: none; }
+    .mask-pane { position: fixed; background: rgba(39, 39, 42, .58); pointer-events: auto; }
+    .spotlight-ring {
+      position: fixed; border: 4px solid var(--spotlight); border-radius: 10px;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, .28); pointer-events: none;
+    }
+    body[data-scope="shell"][data-focus-source="product"] .spotlight-ring { display: none; }
+    /* No filter or opacity on this container: either would open a stacking
+       context and trap the punched-through links underneath the mask. */
+    body[data-scope="shell"] .product-context { opacity: 1; user-select: auto; }
+    /* Punched through: painted above the mask on its own opaque background, and
+       the only place in the shell that ever receives pointer events, so future
+       chrome cannot become silently interactive. */
+    body[data-scope="shell"] .product-context [data-nav][data-live="true"] {
+      position: relative; z-index: 21; background: #fff; pointer-events: auto;
+    }
+    body[data-scope="shell"] .product-context [data-nav][data-live="true"]:hover { background: #fef3c7; }
+
+    .btn-sketch-primary, .btn-sketch-secondary, .btn-sketch-danger { min-height: 42px; padding: 7px 16px; border: 2px solid var(--ink); border-radius: var(--sketch-radius); box-shadow: 2px 2px 0 rgba(0, 0, 0, .18); }
+    .btn-sketch-primary { color: #fff; background: #18181b; }
+    .btn-sketch-secondary { color: var(--ink); background: #fff; }
+    .btn-sketch-danger { color: var(--danger); background: #fff1f2; border-color: var(--danger); }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: minmax(0, 1fr); }
+      .observer-hud {
+        position: relative; top: auto; width: 100vw; max-width: 100vw;
+        height: auto; max-height: min(46vh, 420px); box-sizing: border-box;
+        border-right: 0; border-bottom: 3px solid var(--ink);
+      }
+      .hud-current { order: 1; }
+      .hud-scenario { order: 2; }
+      .hud-entry { order: 3; }
+      .hud-step-note { order: 4; }
+      .stepper { display: flex; min-width: 0; max-width: 100%; overflow-x: auto; }
+      .step { white-space: nowrap; border-color: #52525b; border-radius: 999px; }
+    }
+    @media (max-width: 760px) {
+      .app-shell { grid-template-columns: 1fr; padding: 18px 12px; }
+      .shell-header { grid-column: auto; }
+      .shell-nav { min-height: 0; grid-auto-flow: column; overflow-x: auto; }
+      #product-viewport { padding: 22px 18px; min-height: 460px; }
+    }
+
+    /* ---- Product-specific additions go below this line. ---- */.app-shell { max-width: 1240px; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 24px 18px 44px; }
+    .shell-header { grid-column: 1 / -1; padding: 14px 18px; background: #fffdf7; }
+    .brand-lockup { display: flex; align-items: center; gap: 11px; }
+    .brand-mark { display: grid; place-items: center; width: 36px; height: 36px; color: #fff; background: #1f5f52; border: 2px solid var(--ink); border-radius: 8px 14px 8px 12px; font: 700 23px/1 system-ui, sans-serif; }
+    .brand-lockup strong { display: block; font-size: 22px; line-height: 1.05; }
+    .brand-lockup small { display: block; margin-top: 3px; color: var(--ink-soft); font-size: 14px; }
+    .data-badge { padding: 6px 10px; color: #1f5f52; border: 1px dashed #1f5f52; border-radius: 999px; font-size: 14px; }
+    .shell-nav { grid-column: 1 / -1; min-height: 0; padding: 8px 12px; display: flex; align-items: center; justify-content: center; gap: 4px; overflow-x: auto; background: #fffdf7; }
+    .shell-link { min-height: 38px; padding: 6px 16px; color: var(--ink-soft); border: 0; border-radius: 999px; white-space: nowrap; }
+    .shell-link[data-live="true"] { color: #fff; background: #1f5f52; }
+    #product-viewport { min-height: 620px; padding: 34px; background: #fffdf7; }
+    .view-eyebrow, .panel-kicker { margin: 0 0 10px; color: #a84424; font: 700 13px/1.3 system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+    .view-title { max-width: 880px; margin: 0; color: #153f39; font-size: clamp(38px, 5vw, 72px); line-height: .98; letter-spacing: -.045em; }
+    .lead { max-width: 720px; margin: 20px 0 0; color: #496863; font: 17px/1.55 system-ui, sans-serif; }
+    .landing-view { display: grid; gap: 26px; }
+    .fact-strip { justify-self: start; padding: 9px 14px; color: #496863; border: 1px dashed #87a49e; border-radius: 999px; font: 14px/1.4 system-ui, sans-serif; }
+    .fact-strip span { padding: 0 9px; color: #c5522a; }
+    .landing-callout { display: flex; align-items: center; justify-content: space-between; gap: 20px; max-width: 760px; padding: 18px 20px; background: #dbead8; border: 2px solid #1f5f52; border-radius: 18px 12px 20px 10px; }
+    .landing-callout p { margin: 0; color: #153f39; font: 22px/1.2 system-ui, sans-serif; }
+    .landing-callout small { color: #496863; font-size: 14px; }
+    .landing-callout .btn-sketch-primary { white-space: nowrap; background: #1f5f52; border-color: #153f39; }
+    .how-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; color: #f7f5ec; background: #1f5f52; border-radius: 20px 13px 24px 16px; }
+    .how-strip > div { display: grid; gap: 8px; min-height: 142px; padding: 14px; border: 1px solid rgba(255,255,255,.25); border-radius: 12px 18px 10px 16px; }
+    .how-strip span { color: #d9b18f; font: 13px/1.2 system-ui, sans-serif; letter-spacing: .1em; }
+    .how-strip strong { font: 700 18px/1.15 system-ui, sans-serif; }
+    .how-strip small { color: #d6e4dc; font: 14px/1.4 system-ui, sans-serif; }
+    .route-intro { margin-bottom: 24px; }
+    .purchase-layout, .amount-layout { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr); gap: 18px; align-items: stretch; }
+    .form-panel, .estimate-panel { padding: 24px; border: 2px solid #153f39; border-radius: 18px 12px 22px 15px; }
+    .form-panel { background: #fff; }
+    .form-panel h2, .estimate-panel h2 { margin: 0 0 18px; color: #153f39; font: 700 28px/1.08 system-ui, sans-serif; }
+    .estimate-panel { color: #f7f5ec; background: #1f5f52; }
+    .estimate-panel .panel-kicker { color: #f0c6a8; }
+    .estimate-panel h2 { color: #fff; }
+    .estimate-panel p { margin: 0; color: #d6e4dc; font: 15px/1.55 system-ui, sans-serif; }
+    .estimate-empty { display: grid; align-content: center; min-height: 410px; text-align: center; }
+    .estimate-orbit { display: grid; place-items: center; width: 116px; height: 116px; margin: 0 auto 24px; color: #fff; border: 1px solid #8fb9aa; border-radius: 50%; font: 38px/1 system-ui, sans-serif; }
+    .field-label { display: block; margin: 17px 0 8px; color: #315a54; font: 700 14px/1.35 system-ui, sans-serif; }
+    select, .amount-input { width: 100%; min-height: 44px; padding: 8px 12px; color: #153f39; background: #fff; border: 1px solid #9bb1aa; border-radius: 10px; }
+    .field-note, .tiny-note { margin: 8px 0 0; color: #5e7772; font: 13px/1.45 system-ui, sans-serif; }
+    .purchase-choice { margin-top: 16px; }
+    .category-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    .category-button { display: flex; align-items: center; gap: 9px; min-height: 52px; padding: 9px 11px; color: #315a54; background: #f8f6ed; border: 1px solid #9bb1aa; border-radius: 10px; font: 15px/1.25 system-ui, sans-serif; }
+    .category-button span { display: grid; place-items: center; width: 25px; height: 25px; color: #1f5f52; background: #dbead8; border-radius: 7px; }
+    button.category-button { cursor: pointer; text-align: left; }
+    .category-live { color: #fff; background: #1f5f52; border-color: #153f39; }
+    .category-live span { color: #1f5f52; background: #fff0d9; }
+    .item-picker { display: grid; gap: 18px; padding: 22px; background: #fff; border: 2px solid #153f39; border-radius: 18px 12px 22px 15px; }
+    .back-action { justify-self: start; }
+    .item-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .item-card { display: grid; gap: 8px; min-height: 150px; padding: 15px; color: #315a54; text-align: left; background: #f8f6ed; border: 1px solid #9bb1aa; border-radius: 12px 17px 10px 14px; font: 15px/1.3 system-ui, sans-serif; }
+    button.item-card { cursor: pointer; }
+    .item-live { background: #dbead8; border: 2px solid #1f5f52; }
+    .item-icon { font-size: 28px; }
+    .item-card small { color: #6c817d; font-size: 13px; }
+    .amount-card { display: grid; align-content: start; gap: 10px; }
+    .amount-input { display: flex; align-items: center; gap: 9px; font: 20px/1 system-ui, sans-serif; }
+    .amount-input input { width: 100%; min-width: 0; padding: 0; color: #153f39; background: transparent; border: 0; outline: 0; font: inherit; }
+    .amount-card .btn-sketch-primary { justify-self: start; margin-top: 12px; background: #1f5f52; border-color: #153f39; }
+    .estimate-preview { display: grid; align-content: start; gap: 12px; }
+    .result-context { margin: 0; color: #d6e4dc; font: 15px/1.45 system-ui, sans-serif; }
+    .preview-message { margin: 15px 0 0; color: #fff; font: 20px/1.35 system-ui, sans-serif; }
+    .preview-message strong { display: block; margin: 8px 0; font-size: 42px; }
+    .saved-view { display: grid; gap: 20px; padding: 24px; color: #f7f5ec; background: #1f5f52; border: 2px solid #153f39; border-radius: 18px 12px 22px 15px; }
+    .saved-summary { display: grid; gap: 16px; }
+    .saved-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .saved-heading .view-eyebrow { color: #f0c6a8; }
+    .saved-heading .result-context { max-width: 620px; }
+    .saved-badge { padding: 6px 10px; color: #153f39; background: #c8e2b7; border-radius: 999px; font: 700 13px/1 system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+    .result-hero { display: flex; align-items: baseline; gap: 10px; color: #d6e4dc; font: 18px/1.2 system-ui, sans-serif; }
+    .result-hero strong { color: #fff; font-size: clamp(42px, 7vw, 78px); letter-spacing: -.05em; }
+    .result-subline { margin: 0; color: #d6e4dc; font: 14px/1.5 system-ui, sans-serif; }
+    .breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .breakdown-card { padding-top: 18px; border-top: 1px solid rgba(255,255,255,.27); }
+    .breakdown-card h2 { margin: 0 0 15px; color: #fff; font: 700 17px/1.3 system-ui, sans-serif; }
+    .share-row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,.2); color: #d6e4dc; font: 14px/1.35 system-ui, sans-serif; }
+    .share-row strong { flex: none; color: #fff; font-weight: 400; }
+    .region-bar { display: flex; height: 12px; margin: 18px 0 12px; overflow: hidden; background: #407d6e; border-radius: 999px; }
+    .region-bar span { flex: 79; background: #f2d8bd; }
+    .region-bar i { flex: 4; background: #afd3b1; border-left: 2px solid #1f5f52; }
+    .region-bar i:nth-child(3) { flex: 3; background: #8ebdad; }
+    .region-bar i:nth-child(4) { flex: 14; background: #5f9485; }
+    .region-legend { display: flex; flex-wrap: wrap; gap: 8px 12px; color: #d6e4dc; font: 13px/1.4 system-ui, sans-serif; }
+    .recent-record { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px; color: #153f39; background: #f8f6ed; border: 1px solid #9bb1aa; border-radius: 10px 16px 9px 13px; font: 15px/1.35 system-ui, sans-serif; }
+    .recent-record > div { display: grid; gap: 3px; }
+    .recent-record .panel-kicker { margin: 0; }
+    .recent-record small { color: #5e7772; font-size: 13px; }
+    @media (max-width: 760px) {
+      .app-shell { padding: 14px 10px 32px; }
+      .shell-header { align-items: flex-start; gap: 10px; }
+      .brand-lockup strong { font-size: 19px; }
+      .brand-lockup small, .data-badge { font-size: 13px; }
+      .data-badge { margin-left: auto; }
+      #product-viewport { padding: 24px 16px; }
+      .view-title { font-size: clamp(38px, 12vw, 58px); }
+      .landing-callout, .recent-record { align-items: flex-start; flex-direction: column; }
+      .how-strip, .purchase-layout, .amount-layout, .breakdown-grid { grid-template-columns: 1fr; }
+      .how-strip > div { min-height: 110px; }
+      .item-grid { grid-template-columns: 1fr; }
+      .saved-view { padding: 18px; }
+      .result-hero { flex-wrap: wrap; }
+      .result-hero strong { font-size: 54px; }
+      .share-row { align-items: flex-start; flex-direction: column; gap: 4px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ========================================================================
+     OBSERVER RAIL — the people running the walkthrough, never the product.
+     Restart, flow selector, entry declaration, direct-navigation step map,
+     step note, and scenario live
+     here and nowhere else.
+     ======================================================================== -->
+<aside class="observer-hud" id="observer-hud" aria-label="Flow navigator">
+  <div class="hud-controls" aria-label="Walkthrough controls">
+    <button class="hud-button" id="reset-flow" type="button">Restart</button>
+  </div>
+
+  <div class="hud-section">
+    <span class="hud-label">Flow</span>
+    <select class="hud-select" id="flow-selector" aria-label="Select flow"></select>
+    <span class="hud-flow-title" id="flow-title" hidden></span>
+  </div>
+
+  <details class="hud-section hud-disclosure hud-scenario">
+    <summary><span class="hud-label">Purpose</span></summary>
+    <p class="hud-text" id="flow-task"></p>
+  </details>
+
+  <details class="hud-section hud-disclosure hud-entry">
+    <summary><span class="hud-label">Entry</span></summary>
+    <div class="entry-block" id="entry-block">
+      <span class="entry-basis" id="entry-basis"></span>
+      <p class="hud-text" id="entry-why"></p>
+      <details class="entry-details" id="entry-details">
+        <summary id="entry-preconditions-summary">Preconditions</summary>
+        <ul class="entry-list" id="entry-preconditions"></ul>
+      </details>
+    </div>
+  </details>
+
+  <div class="hud-section hud-current">
+    <details class="route-details" id="route-details" open>
+      <summary>View route map</summary>
+      <nav class="stepper" id="state-stepper" aria-label="Step map"></nav>
+    </details>
+  </div>
+
+  <details class="hud-section hud-disclosure hud-step-note">
+    <summary><span class="hud-label">This step</span></summary>
+    <p class="hud-text" id="state-instruction"></p>
+  </details>
+
+</aside>
+
+<!-- ========================================================================
+     PRODUCT SHELL — believable context, dimmed and non-interactive.
+     Replace the copy with the real product's chrome. Add no data-goto here.
+     ======================================================================== -->
+<div class="app-shell" id="app-shell">
+  <header class="sketch-card shell-header product-context">
+    <div class="brand-lockup">
+      <span class="brand-mark" aria-hidden="true">▥</span>
+      <span><strong>Behind Your Day</strong><small>Work estimate journal</small></span>
+    </div>
+    <span class="data-badge">2022 data year</span>
+  </header>
+  <nav class="sketch-card shell-nav product-context" aria-label="Product navigation">
+    <button class="shell-link" type="button" data-nav="about">About</button>
+    <button class="shell-link" type="button" data-nav="add-record">Add record</button>
+    <button class="shell-link" type="button" data-nav="dashboard">Dashboard</button>
+  </nav>
+  <main id="product-viewport" aria-live="polite"></main>
+</div>
+<div id="interaction-mask" aria-hidden="true">
+  <span class="mask-pane" data-mask-pane="top"></span>
+  <span class="mask-pane" data-mask-pane="right"></span>
+  <span class="mask-pane" data-mask-pane="bottom"></span>
+  <span class="mask-pane" data-mask-pane="left"></span>
+  <span id="spotlight-ring" class="spotlight-ring"></span>
+</div>
+
+<!-- ========================================================================
+     SOURCE OF TRUTH — paste the exact contents of flow.json here.
+     ======================================================================== -->
+<script id="flow-spec" type="application/json">
+{
+  "version": 1,
+  "flows": [
+    {
+      "id": "behind-your-day-purchase",
+      "title": "Record a purchase and see the work estimate",
+      "task": "The person wants to record a representative purchase and see how much supply-chain work Behind Your Day estimates behind it.",
+      "entry": {
+        "state": "about-home",
+        "basis": "observed",
+        "why": "The direct public URL opens on the About page, where the hero explains the estimate and offers Add a purchase.",
+        "preconditions": [
+          "The public site has finished loading its estimation data.",
+          "This representative run starts with no saved purchase in the browser."
+        ],
+        "evidence": [
+          "ev-landing-desktop-shot",
+          "ev-landing-mobile-shot"
+        ]
+      },
+      "focus": [
+        "food-item-picker",
+        "amount-form",
+        "saved-estimate"
+      ],
+      "review": [
+        {
+          "aspect": "entry-point",
+          "status": "open",
+          "proposal": "Start at the public About page because the direct URL capture opens there and the hero is the first place the purchase journey is offered.",
+          "states": [
+            "about-home"
+          ],
+          "question": "Do people actually begin on About, or do they arrive directly on Add record or Dashboard from another link?",
+          "basis": "Observed direct URL render; audience entry behavior was not measured."
+        },
+        {
+          "aspect": "navigation",
+          "status": "open",
+          "proposal": "The representative route is About → Add record → Food & drink → Coffee & drinks → amount → Save this record.",
+          "states": [
+            "about-home",
+            "purchase-form",
+            "food-item-picker",
+            "amount-form"
+          ],
+          "question": "Is the direct hero-to-form route the expected way to reach the estimate, and is any navigation step missing?",
+          "basis": "The route and click order were observed for one representative branch."
+        },
+        {
+          "aspect": "branches",
+          "status": "open",
+          "proposal": "The prototype makes Food & drink → Coffee & drinks the walkable representative branch and leaves other categories/items for discussion; the item picker also offers its observed Back route.",
+          "states": [
+            "purchase-form",
+            "food-item-picker"
+          ],
+          "question": "Should every area and item branch lead to the same estimate pattern, and should the other categories be walked before handoff?",
+          "alternatives": [
+            "Walk a second category as a separate complete flow when its estimate context needs comparison."
+          ],
+          "basis": "All eight area buttons and three food item labels were seen; only one branch was followed end to end."
+        },
+        {
+          "aspect": "failure-recovery",
+          "status": "not-applicable",
+          "proposal": "No technical failure was observed in this journey; the transient estimation-data loading boundary is documented as a limitation rather than injected as a product branch.",
+          "states": [],
+          "basis": "Fresh desktop and mobile walks completed without a failure state."
+        },
+        {
+          "aspect": "ending-state",
+          "status": "open",
+          "proposal": "Saving leaves the person on the estimate with SAVED status and a Recent records row; Dashboard is an observed follow-on route but is outside this selected journey.",
+          "states": [
+            "saved-estimate"
+          ],
+          "question": "Is the saved result the right stopping point, or should the primary journey continue directly into Dashboard?",
+          "basis": "The saved result and Dashboard link were both observed; this artifact intentionally selects the saved-result boundary."
+        }
+      ],
+      "states": [
+        {
+          "id": "about-home",
+          "title": "About / public landing",
+          "step": 1,
+          "scope": "shell",
+          "spotlight": "entry-cta",
+          "navTargets": {
+            "add-record": "purchase-form"
+          },
+          "instruction": "Start on the public landing page. Ask whether this is where a person begins, then follow the hero's Add a purchase action.",
+          "transitions": [
+            "purchase-form"
+          ]
+        },
+        {
+          "id": "purchase-form",
+          "title": "Add record / area of life",
+          "step": 2,
+          "scope": "viewport",
+          "spotlight": "purchase-choice",
+          "instruction": "The form asks for a purchase region and area of life. Food & drink is the representative branch captured from the source.",
+          "transitions": [
+            "food-item-picker"
+          ]
+        },
+        {
+          "id": "food-item-picker",
+          "title": "Food & drink / item picker",
+          "step": 3,
+          "scope": "viewport",
+          "spotlight": "food-items",
+          "instruction": "Food & drink reveals three item choices. Walk Coffee & drinks for the representative estimate; Back returns to the area grid.",
+          "transitions": [
+            "amount-form",
+            "purchase-form"
+          ]
+        },
+        {
+          "id": "amount-form",
+          "title": "Coffee & drinks / amount",
+          "step": 4,
+          "scope": "viewport",
+          "spotlight": "amount-entry",
+          "instruction": "Review the representative $12 USD amount. The source preview updates live as the amount is entered; this wireframe keeps the value visible and makes Save this record the next declared product action.",
+          "transitions": [
+            "saved-estimate"
+          ]
+        },
+        {
+          "id": "saved-estimate",
+          "title": "Saved estimate / work behind the purchase",
+          "step": 5,
+          "terminal": true,
+          "scope": "viewport",
+          "spotlight": "saved-result",
+          "instruction": "Review the saved result: about 18 minutes, the likely range, leading industries, regional split, and the new Recent records row.",
+          "outcome": {
+            "happened": "The $12 USD Coffee & drinks purchase was saved in the browser and its statistical work estimate is shown.",
+            "changed": [
+              "Saved records: 0 → 1",
+              "Estimate: none → about 18 minutes of work",
+              "Result range: none → 11–29 minutes"
+            ],
+            "continuation": null
+          },
+          "transitions": []
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- ========================================================================
+     STATE VIEWS — one <template> per state, keyed by data-flow + data-state.
+     hypothesis and successSignal are omitted above on purpose: fill them in only
+     when the artifact will be used for a moderated participant session.
+     Product copy and product actions only. Actions use data-goto="<state-id>"
+     and every target must be a declared transition from that state. Each state
+     has one wrapper whose data-spotlight matches flow.json; every action for the
+     step stays inside that focused region.
+     A technical-failure journey is a separate complete flow, not a rail control.
+     ======================================================================== -->
+<div id="state-views" hidden>
+  <template data-flow="behind-your-day-purchase" data-state="about-home">
+    <div class="landing-view">
+      <p class="view-eyebrow">See the work behind spending</p>
+      <h1 class="view-title">See the work across borders that supports everyday life.</h1>
+      <p class="lead">Enter an everyday purchase. This estimate attributes work across raw materials, production, transport, and services.</p>
+      <div class="fact-strip" aria-label="Data context"><strong>80</strong> economies + rest of world <span>•</span> <strong>50</strong> industries <span>•</span> <strong>2022</strong> data year</div>
+      <div class="landing-callout" data-spotlight="entry-cta">
+        <p><strong>Start with one purchase.</strong><br><small>See the work behind it.</small></p>
+        <button class="btn-sketch-primary" type="button" data-goto="purchase-form">Add a purchase <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="how-strip" aria-label="How it works">
+        <div><span>01</span><strong>Enter a purchase</strong><small>Where you spent, what you bought, and how much it cost.</small></div>
+        <div><span>02</span><strong>Estimate work time</strong><small>Global industry, employment, and working-hours data.</small></div>
+        <div><span>03</span><strong>See where it comes from</strong><small>Industries and regions across the supply chain.</small></div>
+      </div>
+    </div>
+  </template>
+
+  <template data-flow="behind-your-day-purchase" data-state="purchase-form">
+    <div class="route-intro">
+      <p class="view-eyebrow">Add record</p>
+      <h1 class="view-title">Record a purchase</h1>
+      <p class="lead">Choose the purchase region, area of life, and item, then enter the amount to estimate attributed work.</p>
+    </div>
+    <div class="purchase-layout">
+      <section class="form-panel" aria-label="Purchase choices">
+        <p class="panel-kicker">Two-level categories</p>
+        <h2>Record this purchase</h2>
+        <label class="field-label" for="purchase-region">Where did this purchase happen?</label>
+        <select id="purchase-region" aria-label="Purchase region"><option>United States · USA</option></select>
+        <p class="field-note">Purchase region affects the supply-chain structure. Amount currency keeps its original currency.</p>
+        <div class="purchase-choice" data-spotlight="purchase-choice">
+          <p class="field-label">Which part of life does this purchase belong to?</p>
+          <div class="category-grid">
+            <button class="category-button category-live" type="button" data-goto="food-item-picker"><span>◉</span> Food &amp; drink</button>
+            <div class="category-button"><span>↗</span> Transport</div>
+            <div class="category-button"><span>▣</span> Shopping</div>
+            <div class="category-button"><span>⌂</span> Housing &amp; bills</div>
+            <div class="category-button"><span>☁</span> Digital &amp; subscriptions</div>
+            <div class="category-button"><span>＋</span> Health &amp; learning</div>
+            <div class="category-button"><span>◇</span> Leisure &amp; travel</div>
+            <div class="category-button"><span>□</span> Other services</div>
+          </div>
+        </div>
+      </section>
+      <aside class="estimate-panel estimate-empty" aria-label="Estimated result">
+        <p class="panel-kicker">Estimated result</p>
+        <div class="estimate-orbit" aria-hidden="true">＋</div>
+        <h2>Enter an amount to see work time</h2>
+        <p>You will see the estimated work attributed to this purchase and its main industries and regions.</p>
+      </aside>
+    </div>
+  </template>
+
+  <template data-flow="behind-your-day-purchase" data-state="food-item-picker">
+    <div class="route-intro">
+      <p class="view-eyebrow">Add record / Food &amp; drink</p>
+      <h1 class="view-title">Choose the closest item</h1>
+      <p class="lead">Use the item that best describes this representative purchase.</p>
+    </div>
+    <div class="item-picker" data-spotlight="food-items">
+      <button class="btn-sketch-secondary back-action" type="button" data-goto="purchase-form">← Back to areas</button>
+      <div class="item-grid">
+        <button class="item-card item-live" type="button" data-goto="amount-form"><span class="item-icon">☕</span><strong>Coffee &amp; drinks</strong><small>Representative item</small></button>
+        <div class="item-card"><span class="item-icon">🍚</span><strong>Eating out, delivery &amp; restaurants</strong><small>Not walked in this branch</small></div>
+        <div class="item-card"><span class="item-icon">🥬</span><strong>Groceries &amp; food</strong><small>Not walked in this branch</small></div>
+      </div>
+    </div>
+  </template>
+
+  <template data-flow="behind-your-day-purchase" data-state="amount-form">
+    <div class="route-intro">
+      <p class="view-eyebrow">Add record / Coffee &amp; drinks</p>
+      <h1 class="view-title">How much did you spend?</h1>
+      <p class="lead">The amount keeps its original currency. Enter the representative value used in this walkthrough.</p>
+    </div>
+    <div class="amount-layout">
+      <section class="form-panel amount-card" aria-label="Amount entry" data-spotlight="amount-entry">
+        <label class="field-label" for="purchase-amount">Amount currency · USD</label>
+        <div class="amount-input" aria-label="Amount in USD"><span>$</span><span class="amount-static">12</span><span>USD</span></div>
+        <p class="field-note">We use the latest available CPI associated with USD to approximate 2022 prices.</p>
+        <p class="tiny-note">The source preview updates as the amount is entered.</p>
+        <button class="btn-sketch-primary" type="button" data-goto="saved-estimate">Save this record <span aria-hidden="true">→</span></button>
+      </section>
+      <aside class="estimate-panel estimate-preview" aria-label="Estimate preview">
+        <p class="panel-kicker">Estimated result</p>
+        <p class="result-context">United States · Food &amp; drink › Coffee &amp; drinks · $12 USD</p>
+        <p class="preview-message">About <strong>18 minutes</strong> of work once the amount is entered.</p>
+        <p class="field-note">Likely range: 11 minutes–29 minutes</p>
+      </aside>
+    </div>
+  </template>
+
+  <template data-flow="behind-your-day-purchase" data-state="saved-estimate">
+    <div class="saved-view">
+      <div class="saved-summary" data-spotlight="saved-result">
+        <div class="saved-heading">
+          <div>
+            <p class="view-eyebrow">Estimated result</p>
+            <p class="result-context">United States · Food &amp; drink › Coffee &amp; drinks · $12 USD</p>
+          </div>
+          <span class="saved-badge">Saved</span>
+        </div>
+        <div class="result-hero"><span>About</span><strong>18 minutes</strong><span>of work</span></div>
+        <p class="result-subline">0.3 person-hours (one person working for one hour) · Likely range: 11 minutes–29 minutes</p>
+      </div>
+      <div class="breakdown-grid">
+        <section class="breakdown-card">
+          <h2>Which industries does the work come from?</h2>
+          <div class="share-row"><span>Retail, food &amp; accommodation</span><strong>13 minutes · 70%</strong></div>
+          <div class="share-row"><span>Information &amp; professional services</span><strong>2 minutes · 9%</strong></div>
+          <div class="share-row"><span>Agriculture, forestry &amp; fishing</span><strong>2 minutes · 9%</strong></div>
+          <div class="share-row"><span>Manufacturing</span><strong>1 minute · 7%</strong></div>
+          <div class="share-row"><span>Transport &amp; logistics</span><strong>1 minute · 3%</strong></div>
+        </section>
+        <section class="breakdown-card">
+          <h2>Where does the work happen?</h2>
+          <div class="region-bar"><span></span><i></i><i></i><i></i></div>
+          <div class="region-legend"><span>United States 79%</span><span>India 4%</span><span>China 3%</span><span>Indonesia 1%</span><span>Other regions 12%</span></div>
+          <p class="field-note">Source-data coverage is relatively complete; the result is still an estimate.</p>
+        </section>
+      </div>
+      <div class="recent-record">
+        <div><p class="panel-kicker">Saved / Recent records</p><strong>Food &amp; drink › Coffee &amp; drinks</strong><small>United States · $12 USD</small></div>
+        <strong>About 18 minutes</strong>
+      </div>
+    </div>
+  </template>
+</div>
+<!-- ========================================================================
+     ENGINE — generic and data driven. Do not edit when building a prototype.
+     ======================================================================== -->
+<script>
+  const BASIS_LABELS = {
+    'observed': 'Observed',
+    'provided': 'Provided',
+    'assumed': 'Assumed'
+  };
+  const FlowPrototype = {
+    spec: null,
+    flowId: null,
+    stateId: null,
+    liveProductActions: [],
+    liveNavigation: [],
+
+    init() {
+      this.spec = JSON.parse(document.getElementById('flow-spec').textContent);
+      this.selector = document.getElementById('flow-selector');
+      this.stepper = document.getElementById('state-stepper');
+      this.viewport = document.getElementById('product-viewport');
+      this.shell = document.getElementById('app-shell');
+      this.mask = document.getElementById('interaction-mask');
+      this.maskPanes = Object.fromEntries(
+        Array.from(this.mask.querySelectorAll('[data-mask-pane]'))
+          .map((pane) => [pane.dataset.maskPane, pane])
+      );
+      this.spotlightRing = document.getElementById('spotlight-ring');
+      this.spotlightTargets = [this.viewport];
+      this.routeDetails = document.getElementById('route-details');
+
+      this.selector.innerHTML = this.spec.flows
+        .map((flow) => `<option value="${flow.id}">${this.escapeHtml(flow.title)}</option>`)
+        .join('');
+      const single = this.spec.flows.length === 1;
+      this.selector.hidden = single;
+      document.getElementById('flow-title').hidden = !single;
+
+      this.selector.addEventListener('change', () => this.selectFlow(this.selector.value));
+      // Restart returns to the entry point, never to the middle of the journey.
+      document.getElementById('reset-flow').addEventListener('click', () => this.selectFlow(this.flowId));
+
+      this.stepper.addEventListener('click', (event) => {
+        const step = event.target.closest('[data-jump]');
+        if (step) this.jumpTo(step.dataset.jump);
+      });
+
+      window.addEventListener('resize', () => this.updateSpotlight());
+      window.addEventListener('scroll', () => this.updateSpotlight(), true);
+
+      // Product actions inside the page under discussion. Capture the event so
+      // an undeclared anchor or custom interactive element cannot follow its
+      // native action before the mask or the delegated handler gets a say.
+      this.viewport.addEventListener('click', (event) => {
+        const trigger = event.target.closest('[data-goto]');
+        if (!trigger || !this.liveProductActions.includes(trigger)) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        this.goTo(trigger.dataset.goto);
+      }, true);
+
+      // Product navigation. A shell link is live only where the current state
+      // says it leads somewhere, so one shared shell serves every flow. Capture
+      // this too so an undeclared anchor cannot navigate by mouse or keyboard.
+      this.shell.addEventListener('click', (event) => {
+        const link = event.target.closest('[data-nav]');
+        if (!link) return;
+        if (!this.liveNavigation.includes(link)) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        this.goTo((this.state().navTargets || {})[link.dataset.nav]);
+      }, true);
+
+      // Click is the final guard for keyboard activation in normal controls.
+      // Keydown also covers custom interactive content such as a role=button
+      // element or a summary/details control that has no click default.
+      this.shell.addEventListener('keydown', (event) => {
+        const control = event.target.closest(
+          'button, a[href], area[href], input, select, textarea, summary, [contenteditable="true"], [tabindex], [role="button"], [role="link"], audio[controls], video[controls], iframe, object, embed'
+        );
+        if (!control) return;
+        const action = control.closest('[data-goto]');
+        const navigation = control.closest('[data-nav]');
+        if ((action && this.liveProductActions.includes(action))
+          || (navigation && this.liveNavigation.includes(navigation))) return;
+        event.preventDefault();
+        event.stopPropagation();
+      }, true);
+
+      this.selectFlow(this.spec.flows[0].id);
+    },
+
+    flow() {
+      return this.spec.flows.find((flow) => flow.id === this.flowId);
+    },
+
+    state() {
+      return this.flow().states.find((state) => state.id === this.stateId);
+    },
+
+    selectFlow(flowId) {
+      const flow = this.spec.flows.find((item) => item.id === flowId);
+      if (!flow) throw new Error(`Unknown flow: ${flowId}`);
+      this.flowId = flow.id;
+      this.stateId = flow.entry.state;
+      this.selector.value = flow.id;
+      this.routeDetails.open = true;
+      document.title = flow.title;
+      document.getElementById('flow-title').textContent = flow.title;
+      document.getElementById('flow-task').textContent = flow.task;
+      this.renderEntry(flow);
+      this.render();
+    },
+
+    // The walked path. Only transitions the specification declares.
+    goTo(stateId) {
+      const current = this.state();
+      if (!current.transitions.includes(stateId)) {
+        throw new Error(`Undeclared transition: ${current.id} -> ${stateId}`);
+      }
+      this.stateId = stateId;
+      this.render();
+      this.focusView();
+    },
+
+    jumpTo(stateId) {
+      if (!this.flow().states.some((state) => state.id === stateId)) {
+        throw new Error(`Unknown state: ${stateId}`);
+      }
+      this.stateId = stateId;
+      this.render();
+      this.focusView();
+    },
+
+    renderEntry(flow) {
+      const basis = document.getElementById('entry-basis');
+      basis.dataset.basis = flow.entry.basis;
+      basis.textContent = BASIS_LABELS[flow.entry.basis] || flow.entry.basis;
+      document.getElementById('entry-why').textContent = flow.entry.why;
+      const preconditions = flow.entry.preconditions || [];
+      const entryDetails = document.getElementById('entry-details');
+      entryDetails.hidden = !preconditions.length;
+      entryDetails.open = false;
+      document.getElementById('entry-preconditions-summary').textContent = preconditions.length
+        ? `${preconditions.length} precondition${preconditions.length === 1 ? '' : 's'}`
+        : 'No skipped steps';
+      document.getElementById('entry-preconditions').innerHTML = preconditions
+        .map((item) => `<li>${this.escapeHtml(item)}</li>`)
+        .join('');
+    },
+
+    escapeHtml(value) {
+      const span = document.createElement('span');
+      span.textContent = value == null ? '' : String(value);
+      return span.innerHTML;
+    },
+
+    render() {
+      const flow = this.flow();
+      const state = this.state();
+      document.getElementById('state-instruction').textContent = state.instruction;
+      // Steps that share a number are alternative outcomes, not sequential steps.
+      const focus = new Set(flow.focus || []);
+      const ordered = flow.states.slice().sort((a, b) => a.step - b.step);
+      const counts = ordered.reduce((all, item) => ({ ...all, [item.step]: (all[item.step] || 0) + 1 }), {});
+      let seen = {};
+      this.stepper.innerHTML = ordered
+        .map((item) => {
+          const branch = counts[item.step] > 1;
+          seen[item.step] = (seen[item.step] || 0) + 1;
+          const last = seen[item.step] === counts[item.step];
+          const mark = branch ? (last ? '└' : '├') : `${item.step}.`;
+          const marker = focus.has(item.id) ? '<span class="step-focus">◆</span>' : '';
+          return `<button class="step" type="button" data-jump="${item.id}" data-branch="${branch}"`
+            + ` data-active="${item.id === state.id}"`
+            + ` aria-current="${item.id === state.id ? 'step' : 'false'}">`
+            + `<span class="step-mark">${mark}</span><span class="step-name">${this.escapeHtml(item.title)}</span>${marker}</button>`;
+        })
+        .join('');
+
+      // Interaction scope for this state, and which shell links lead somewhere.
+      document.body.dataset.scope = state.scope === 'shell' ? 'shell' : 'viewport';
+      const navTargets = state.navTargets || {};
+      document.querySelectorAll('[data-nav]').forEach((link) => {
+        const target = navTargets[link.dataset.nav];
+        link.dataset.live = String(Boolean(target && state.transitions.includes(target)));
+      });
+
+      const view = document.querySelector(`template[data-flow="${flow.id}"][data-state="${state.id}"]`);
+      if (!view) throw new Error(`Missing state view: ${flow.id}/${state.id}`);
+      this.viewport.replaceChildren(view.content.cloneNode(true));
+      const spotlightKeys = Array.isArray(state.spotlights) && state.spotlights.length
+        ? state.spotlights
+        : (state.spotlight ? [state.spotlight] : []);
+      const declaredSpotlights = spotlightKeys
+        .map((key) => Array.from(this.viewport.querySelectorAll('[data-spotlight]'))
+          .find((element) => element.dataset.spotlight === key))
+        .filter(Boolean);
+      const productTargets = declaredSpotlights.length ? declaredSpotlights : [this.viewport];
+      const liveNavigation = Array.from(this.shell.querySelectorAll('[data-nav][data-live="true"]'));
+      // querySelectorAll does not include the element it is called on. Keep the
+      // spotlight root in the candidate list so a button can be both the focus
+      // region and the declared action.
+      const liveProductActions = productTargets.flatMap((target) => {
+        const actions = target.matches('[data-goto]') ? [target] : [];
+        return actions.concat(Array.from(target.querySelectorAll('[data-goto]')))
+          .filter((control) => state.transitions.includes(control.dataset.goto));
+      });
+      this.liveProductActions = [...new Set(liveProductActions)];
+      this.liveNavigation = liveNavigation;
+      const spotlightOffersAction = this.liveProductActions.length > 0;
+      const navigationOnly = state.scope === 'shell'
+        && liveNavigation.length === 1
+        && !spotlightOffersAction;
+      document.body.dataset.focusSource = navigationOnly ? 'navigation' : 'product';
+      this.spotlightTargets = navigationOnly ? [liveNavigation[0]] : productTargets;
+
+      // The mask must constrain keyboard interaction as well as pointer input.
+      // Disable every product control, then enable only declared actions inside
+      // the current spotlight and routed navigation exposed by this state.
+      const productControls = Array.from(this.shell.querySelectorAll(
+        'button, a[href], area[href], input, select, textarea, summary, [contenteditable="true"], [tabindex], [role="button"], [role="link"], audio[controls], video[controls], iframe, object, embed'
+      )).filter((control) => control !== this.viewport);
+      const liveControls = [
+        ...this.liveProductActions,
+        ...(state.scope === 'shell' ? liveNavigation : [])
+      ];
+      const liveControlSet = new Set(liveControls);
+      productControls.forEach((control) => {
+        control.tabIndex = -1;
+        control.setAttribute('aria-disabled', 'true');
+        control.style.pointerEvents = 'none';
+        if ('disabled' in control) control.disabled = true;
+      });
+      liveControls.forEach((control) => {
+        if (!liveControlSet.has(control)) return;
+        control.tabIndex = 0;
+        control.removeAttribute('aria-disabled');
+        control.style.pointerEvents = '';
+        if ('disabled' in control) control.disabled = false;
+      });
+      requestAnimationFrame(() => {
+        this.ensureSpotlightVisible();
+        this.updateSpotlight();
+      });
+    },
+
+    ensureSpotlightVisible() {
+      // A multi-region step may pair context with a distant action. On a narrow
+      // viewport, keep the actionable region visible so the walkthrough cannot
+      // expose evidence yet hide the only way forward.
+      const actionTarget = this.spotlightTargets
+        .map((target) => target.matches('[data-goto]') ? target : target.querySelector('[data-goto]'))
+        .find(Boolean);
+      const spotlightTarget = actionTarget
+        ? this.spotlightTargets.find((target) => target === actionTarget || target.contains(actionTarget))
+        : this.spotlightTargets[0];
+      if (!spotlightTarget || spotlightTarget === this.viewport) return;
+      const target = spotlightTarget.getBoundingClientRect();
+      const shell = this.shell.getBoundingClientRect();
+      const visibleTop = Math.max(0, shell.top);
+      const visibleBottom = Math.min(window.innerHeight, shell.bottom);
+      const inset = 24;
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop - inset * 2);
+      if (target.top < visibleTop + inset || target.bottom > visibleBottom - inset) {
+        const scrollTarget = target.height > visibleHeight && actionTarget
+          ? actionTarget
+          : spotlightTarget;
+        scrollTarget.scrollIntoView({ block: 'center', inline: 'nearest' });
+      }
+    },
+
+    updateSpotlight() {
+      const targets = this.spotlightTargets.filter((target) => target && target.isConnected);
+      if (!targets.length) {
+        this.mask.hidden = true;
+        return;
+      }
+      this.mask.hidden = false;
+      const shell = this.shell.getBoundingClientRect();
+      const bounds = {
+        left: Math.max(0, shell.left),
+        top: Math.max(0, shell.top),
+        right: Math.min(window.innerWidth, shell.right),
+        bottom: Math.min(window.innerHeight, shell.bottom)
+      };
+      const setRect = (element, left, top, right, bottom) => {
+        element.style.left = `${left}px`;
+        element.style.top = `${top}px`;
+        element.style.width = `${Math.max(0, right - left)}px`;
+        element.style.height = `${Math.max(0, bottom - top)}px`;
+      };
+      const holes = targets.map((target) => {
+        const rect = target.getBoundingClientRect();
+        const padding = target === this.viewport ? 0 : 10;
+        const left = Math.min(bounds.right, Math.max(bounds.left, rect.left - padding));
+        const top = Math.min(bounds.bottom, Math.max(bounds.top, rect.top - padding));
+        return {
+          left,
+          top,
+          right: Math.max(left, Math.min(bounds.right, rect.right + padding)),
+          bottom: Math.max(top, Math.min(bounds.bottom, rect.bottom + padding))
+        };
+      });
+
+      this.mask.querySelectorAll('[data-dynamic-mask]').forEach((pane) => pane.remove());
+      Object.values(this.maskPanes).forEach((pane) => { pane.style.display = holes.length === 1 ? '' : 'none'; });
+      if (holes.length === 1) {
+        const hole = holes[0];
+        setRect(this.maskPanes.top, bounds.left, bounds.top, bounds.right, hole.top);
+        setRect(this.maskPanes.right, hole.right, hole.top, bounds.right, hole.bottom);
+        setRect(this.maskPanes.bottom, bounds.left, hole.bottom, bounds.right, bounds.bottom);
+        setRect(this.maskPanes.left, bounds.left, hole.top, hole.left, hole.bottom);
+      } else {
+        const xs = [...new Set([bounds.left, bounds.right, ...holes.flatMap((hole) => [hole.left, hole.right])])]
+          .sort((a, b) => a - b);
+        const ys = [...new Set([bounds.top, bounds.bottom, ...holes.flatMap((hole) => [hole.top, hole.bottom])])]
+          .sort((a, b) => a - b);
+        for (let x = 0; x < xs.length - 1; x += 1) {
+          for (let y = 0; y < ys.length - 1; y += 1) {
+            const centerX = (xs[x] + xs[x + 1]) / 2;
+            const centerY = (ys[y] + ys[y + 1]) / 2;
+            const insideHole = holes.some((hole) => centerX >= hole.left && centerX <= hole.right
+              && centerY >= hole.top && centerY <= hole.bottom);
+            if (insideHole) continue;
+            const pane = document.createElement('span');
+            pane.className = 'mask-pane';
+            pane.dataset.dynamicMask = 'true';
+            this.mask.appendChild(pane);
+            setRect(pane, xs[x], ys[y], xs[x + 1], ys[y + 1]);
+          }
+        }
+      }
+
+      // Reuse the existing ring pool. updateSpotlight runs after every scroll
+      // and resize; cloning from only the primary ring would leak one extra DOM
+      // node per event on every multi-region state.
+      const rings = Array.from(this.mask.querySelectorAll('.spotlight-ring'));
+      while (rings.length < holes.length) {
+        const ring = this.spotlightRing.cloneNode(false);
+        ring.removeAttribute('id');
+        this.mask.appendChild(ring);
+        rings.push(ring);
+      }
+      while (rings.length > holes.length && rings.length > 1) rings.pop().remove();
+      rings.forEach((ring, index) => {
+        ring.hidden = index >= holes.length;
+        if (holes[index]) setRect(ring, holes[index].left, holes[index].top, holes[index].right, holes[index].bottom);
+      });
+    },
+
+    focusView() {
+      const target = this.viewport.querySelector('h1') || this.viewport;
+      const temporaryViewportTabIndex = target === this.viewport && !target.hasAttribute('tabindex');
+      if (temporaryViewportTabIndex) target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
+      if (temporaryViewportTabIndex) target.removeAttribute('tabindex');
+    }
+  };
+
+  FlowPrototype.init();
+</script>
+</body>
+</html>

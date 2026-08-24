@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 1,
   "id": "plan-comparison",
   "reference": {
     "path": "tests/fixtures/reference.json",

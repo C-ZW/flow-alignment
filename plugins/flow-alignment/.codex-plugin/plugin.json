@@ -1,0 +1,28 @@
+{
+  "name": "flow-alignment",
+  "version": "0.1.0+codex.20260824070042",
+  "description": "Research public website journeys and turn proposed or observed flows into clickable alignment wireframes.",
+  "author": {
+    "name": "Flow Alignment contributors"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/C-ZW/flow-alignment",
+  "repository": "https://github.com/C-ZW/flow-alignment",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Flow Alignment",
+    "shortDescription": "Research journeys and build alignment wireframes.",
+    "longDescription": "Two independent or composable skills for evidence-backed website-flow research and clickable, low-fidelity journey alignment artifacts.",
+    "developerName": "Flow Alignment contributors",
+    "category": "Productivity",
+    "capabilities": [
+      "Research",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Research this public website's user flow.",
+      "Turn this journey into a clickable alignment wireframe.",
+      "Research this site, then prototype one observed journey."
+    ]
+  }
+}

@@ -16,10 +16,25 @@ from _support import ROOT, SKILLS, TEMPLATE, adaptation, flow_spec, reference
 PROTOTYPES = ROOT / "prototypes"
 REFERENCES = ROOT / "references"
 ENGINE_MARKER = "ENGINE — generic and data driven"
+DESIGN_MARKER = "/* ---- Product-specific additions go below this line. ---- */"
+RAIL_START = '<aside class="observer-hud" id="observer-hud"'
 
 
 def engine_block(html: str) -> str:
-    return html[html.index(ENGINE_MARKER):]
+    marker = html.index(ENGINE_MARKER)
+    boundary = html.rfind("<!--", 0, marker)
+    return html[boundary:]
+
+
+def design_block(html: str) -> str:
+    """Everything before the marker is generic; everything after is the product's."""
+    return html[html.index("<style>"):html.index(DESIGN_MARKER)]
+
+
+def rail_block(html: str) -> str:
+    start = html.index(RAIL_START)
+    end = html.index("</aside>", start) + len("</aside>")
+    return html[start:end]
 
 
 def directories(parent: Path) -> list[Path]:
@@ -40,8 +55,7 @@ class PrototypeArtifacts(unittest.TestCase):
                 self.assertEqual(
                     missing,
                     [],
-                    f"prototypes/{directory.name} is missing {missing}. Migrate it to the current "
-                    "flow.json contract or remove it.",
+                    f"prototypes/{directory.name} is missing {missing}. Complete the artifact or remove it.",
                 )
 
     def test_every_prototype_passes_its_validator(self):
@@ -68,6 +82,41 @@ class PrototypeArtifacts(unittest.TestCase):
                 self.assertTrue(
                     engine_block(html) == expected,
                     f"prototypes/{directory.name} edited the generic engine. Flow logic belongs in flow.json.",
+                )
+
+    def test_every_prototype_uses_the_unmodified_design_system(self):
+        # The rail, the interaction mask, and the responsive rules are generic and
+        # change in the template. This check keeps every artifact synchronized.
+        expected = design_block(TEMPLATE.read_text(encoding="utf-8"))
+        for directory in directories(PROTOTYPES):
+            html_path = directory / "prototype.html"
+            if not html_path.is_file():
+                continue
+            with self.subTest(prototype=directory.name):
+                html = html_path.read_text(encoding="utf-8")
+                self.assertTrue(
+                    DESIGN_MARKER in html,
+                    f"prototypes/{directory.name} has no product-CSS marker; rebuild it from the template.",
+                )
+                self.assertTrue(
+                    design_block(html) == expected,
+                    f"prototypes/{directory.name} edited the generic design system. Product CSS goes after "
+                    f"the '{DESIGN_MARKER}' marker; rebuild the rest from assets/prototype-template.html.",
+                )
+
+    def test_every_prototype_uses_the_unmodified_observer_rail(self):
+        expected = rail_block(TEMPLATE.read_text(encoding="utf-8"))
+        for directory in directories(PROTOTYPES):
+            html_path = directory / "prototype.html"
+            if not html_path.is_file():
+                continue
+            with self.subTest(prototype=directory.name):
+                html = html_path.read_text(encoding="utf-8")
+                self.assertEqual(
+                    rail_block(html),
+                    expected,
+                    f"prototypes/{directory.name} edited the generic observer rail. Product-specific "
+                    "markup belongs inside #app-shell.",
                 )
 
     def test_website_derived_prototypes_declare_their_adaptation(self):
@@ -110,7 +159,7 @@ class ReferenceArtifacts(unittest.TestCase):
 
 class OutputLocation(unittest.TestCase):
     def test_no_generated_artifacts_live_under_the_skills_directory(self):
-        for name in ("flow.json", "test-plan.md", "adaptation.json", "reference.json"):
+        for name in ("flow.json", "walkthrough.md", "adaptation.json", "reference.json"):
             with self.subTest(artifact=name):
                 strays = sorted(str(path.relative_to(ROOT)) for path in SKILLS.rglob(name))
                 self.assertEqual(strays, [], "Generated artifacts must not live under .claude/skills/.")

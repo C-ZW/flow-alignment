@@ -1,48 +1,146 @@
 {
-  "version": 2,
+  "version": 1,
   "flows": [
     {
       "id": "plan-comparison",
       "title": "Choose a plan",
       "task": "The customer is deciding between two plans and wants to know what changes.",
-      "initialState": "pricing",
+      "hypothesis": "Putting the two plans side by side makes the difference legible without opening a comparison table.",
+      "entry": {
+        "state": "marketing-home",
+        "basis": "assumed",
+        "why": "Someone weighing up plans arrives on the marketing site before they ever see pricing.",
+        "preconditions": ["Not signed in", "Has not started a trial"]
+      },
+      "focus": ["pricing"],
+      "review": [
+        {
+          "aspect": "entry-point",
+          "status": "assumed",
+          "proposal": "People reach pricing from the marketing navigation.",
+          "states": ["marketing-home"],
+          "question": "Do people arrive on pricing from the site, or from an ad landing straight on it?"
+        },
+        {
+          "aspect": "navigation",
+          "status": "open",
+          "proposal": "One click from the marketing navigation to pricing.",
+          "states": ["marketing-home"],
+          "question": "Is pricing findable from every marketing page, or only the home page?"
+        },
+        {
+          "aspect": "branches",
+          "status": "open",
+          "proposal": "Pick a plan, or leave without picking one.",
+          "states": ["pricing"],
+          "question": "Is there a third path — talk to sales, or start a trial without choosing?"
+        },
+        {
+          "aspect": "failure-recovery",
+          "status": "not-applicable",
+          "proposal": "Nothing is submitted on these screens, so there is no failure to show.",
+          "states": []
+        },
+        {
+          "aspect": "ending-state",
+          "status": "assumed",
+          "proposal": "After choosing, pricing shows the selected plan.",
+          "states": ["pricing-after-choice"],
+          "question": "The destination after selecting a plan was never observed. Is this what it does?"
+        }
+      ],
       "states": [
+        {
+          "id": "marketing-home",
+          "title": "Marketing home",
+          "step": 1,
+          "scope": "shell",
+          "navTargets": { "pricing": "pricing" },
+          "instruction": "Start on the marketing site, not on pricing.",
+          "transitions": ["pricing"]
+        },
         {
           "id": "pricing",
           "title": "Pricing",
-          "step": 1,
+          "step": 2,
           "instruction": "Where does the difference between the plans become clear?",
-          "transitions": [
-            "chosen"
-          ]
+          "transitions": ["chosen", "marketing-home"]
         },
         {
           "id": "chosen",
           "title": "Plan chosen",
-          "step": 2,
+          "step": 3,
           "terminal": true,
           "instruction": "What the product confirms after a plan is picked.",
-          "transitions": [
-            "pricing"
-          ]
+          "outcome": {
+            "happened": "The Team plan was selected.",
+            "changed": ["Selected plan: none -> Team"],
+            "continuation": "pricing-after-choice"
+          },
+          "transitions": ["pricing-after-choice"]
+        },
+        {
+          "id": "pricing-after-choice",
+          "title": "Pricing — plan selected",
+          "step": 4,
+          "instruction": "The same pricing page, now showing which plan is selected.",
+          "transitions": []
         }
-      ],
-      "hypothesis": "Putting the two plans side by side makes the difference legible without opening a comparison table."
+      ]
     },
     {
       "id": "billing-questions",
       "title": "Answer a billing question",
       "task": "The customer has a question about proration before committing.",
-      "initialState": "faq-closed",
+      "entry": {
+        "state": "faq-closed",
+        "basis": "observed",
+        "why": "The billing questions sit on the pricing page itself, below the plan cards.",
+        "preconditions": ["Already reading the pricing page"],
+        "evidence": ["ev-page"]
+      },
+      "focus": ["faq-open"],
+      "review": [
+        {
+          "aspect": "entry-point",
+          "status": "confirmed",
+          "proposal": "The questions are on the pricing page, below the plans.",
+          "states": ["faq-closed"],
+          "basis": "Observed on the live site."
+        },
+        {
+          "aspect": "navigation",
+          "status": "confirmed",
+          "proposal": "No navigation: the answer expands in place.",
+          "states": ["faq-closed"],
+          "basis": "Observed on the live site."
+        },
+        {
+          "aspect": "branches",
+          "status": "confirmed",
+          "proposal": "One question, one answer. No branch.",
+          "states": ["faq-open"]
+        },
+        {
+          "aspect": "failure-recovery",
+          "status": "not-applicable",
+          "proposal": "Expanding an answer cannot fail in a way worth showing.",
+          "states": []
+        },
+        {
+          "aspect": "ending-state",
+          "status": "confirmed",
+          "proposal": "The answer stays open and the plans stay visible below it.",
+          "states": ["faq-answered"]
+        }
+      ],
       "states": [
         {
           "id": "faq-closed",
           "title": "FAQ",
           "step": 1,
           "instruction": "Is the FAQ findable from the pricing page?",
-          "transitions": [
-            "faq-open"
-          ]
+          "transitions": ["faq-open"]
         },
         {
           "id": "faq-open",
@@ -50,9 +148,19 @@
           "step": 2,
           "terminal": true,
           "instruction": "Does the answer settle the question?",
-          "transitions": [
-            "faq-closed"
-          ]
+          "outcome": {
+            "happened": "The proration answer is open.",
+            "changed": ["The proration question: collapsed -> expanded"],
+            "continuation": "faq-answered"
+          },
+          "transitions": ["faq-answered"]
+        },
+        {
+          "id": "faq-answered",
+          "title": "Pricing — answer open",
+          "step": 3,
+          "instruction": "The pricing page with the answer expanded and the plans still visible.",
+          "transitions": []
         }
       ]
     }

@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "id": "behind-your-day",
+  "source": {
+    "url": "https://behindyourday.com/",
+    "canonicalUrl": "https://behindyourday.com/",
+    "capturedAt": "2026-08-24T15:58:01+08:00"
+  },
+  "coverage": {
+    "viewports": [
+      { "name": "desktop", "width": 1440, "height": 1000 },
+      { "name": "mobile", "width": 390, "height": 844 }
+    ],
+    "sweeps": ["initial-render", "scroll", "click", "type", "hover", "responsive"]
+  },
+  "evidence": [
+    { "id": "ev-landing-desktop-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/landing-desktop.png", "url": "https://behindyourday.com/", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-landing-desktop-full-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/landing-desktop-full.png", "url": "https://behindyourday.com/", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-landing-mobile-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/landing-mobile.png", "url": "https://behindyourday.com/", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-landing-mobile-full-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/landing-mobile-full.png", "url": "https://behindyourday.com/", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-input-desktop-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/input-desktop.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-input-desktop-full-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/input-desktop-full.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-input-mobile-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/input-mobile.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-input-mobile-full-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/input-mobile-full.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-item-picker-desktop-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/item-picker-desktop.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-item-picker-mobile-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/item-picker-mobile.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-amount-form-desktop-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/amount-form-desktop.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-amount-form-mobile-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/amount-form-mobile.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-estimate-desktop-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/estimate-preview-desktop.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-estimate-mobile-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/estimate-preview-mobile.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-saved-result-desktop-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/saved-result-desktop.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-saved-result-desktop-full-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/saved-result-desktop-full.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-saved-result-mobile-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/saved-result-mobile.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-saved-result-mobile-full-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/saved-result-mobile-full.png", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-dashboard-desktop-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/dashboard-desktop.png", "url": "https://behindyourday.com/#dashboard", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-dashboard-desktop-full-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/dashboard-desktop-full.png", "url": "https://behindyourday.com/#dashboard", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-dashboard-mobile-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/dashboard-mobile.png", "url": "https://behindyourday.com/#dashboard", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-dashboard-mobile-full-shot", "kind": "screenshot", "method": "browser", "path": "screenshots/dashboard-mobile-full.png", "url": "https://behindyourday.com/#dashboard", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-add-record-desktop", "kind": "interaction", "method": "browser", "action": "Click the Add a purchase link", "destination": "https://behindyourday.com/#input", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-add-record-mobile", "kind": "interaction", "method": "browser", "action": "Tap the Add a purchase link", "destination": "https://behindyourday.com/#input", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-food-desktop", "kind": "interaction", "method": "browser", "action": "Click Food & drink", "destination": "Food & drink item picker on #input", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-food-mobile", "kind": "interaction", "method": "browser", "action": "Tap Food & drink", "destination": "Food & drink item picker on #input", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-coffee-desktop", "kind": "interaction", "method": "browser", "action": "Click Coffee & drinks", "destination": "Amount form on #input", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-coffee-mobile", "kind": "interaction", "method": "browser", "action": "Tap Coffee & drinks", "destination": "Amount form on #input", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-amount-desktop", "kind": "interaction", "method": "browser", "action": "Enter 12 in the amount field", "destination": "Live estimate preview", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-amount-mobile", "kind": "interaction", "method": "browser", "action": "Enter 12 in the amount field", "destination": "Live estimate preview", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-save-desktop", "kind": "interaction", "method": "browser", "action": "Submit Save this record", "destination": "Saved result on #input", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-save-mobile", "kind": "interaction", "method": "browser", "action": "Tap Save this record", "destination": "Saved result on #input", "url": "https://behindyourday.com/#input", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" },
+    { "id": "ev-dashboard-link-desktop", "kind": "interaction", "method": "browser", "action": "Click View dashboard", "destination": "Dashboard summary on #dashboard", "url": "https://behindyourday.com/#dashboard", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "desktop" },
+    { "id": "ev-dashboard-link-mobile", "kind": "interaction", "method": "browser", "action": "Tap View dashboard", "destination": "Dashboard summary on #dashboard", "url": "https://behindyourday.com/#dashboard", "capturedAt": "2026-08-24T15:58:01+08:00", "viewport": "mobile" }
+  ],
+  "observations": [
+    { "id": "obs-horizontal-shell", "kind": "observed", "summary": "The desktop site uses a single horizontal shell: brand at left, About/Add record/Dashboard tabs centered, and language/data-year controls at right; on mobile the shell wraps into a compact top row and tab row.", "evidence": ["ev-landing-desktop-shot", "ev-landing-mobile-shot"] },
+    { "id": "obs-landing-hero", "kind": "observed", "summary": "The landing page leads with a large border-work headline, a short explanation, data-year/economy/industry facts, and an Add a purchase call to action.", "evidence": ["ev-landing-desktop-shot", "ev-landing-mobile-shot"] },
+    { "id": "obs-landing-sections", "kind": "observed", "summary": "Below the hero, a dark How it works band presents three numbered cards, followed by an estimate-method note, browser-storage/privacy note, and footer links.", "evidence": ["ev-landing-desktop-full-shot", "ev-landing-mobile-full-shot"] },
+    { "id": "obs-input-layout", "kind": "observed", "summary": "The Add record route opens a two-column workspace on desktop: a white purchase form on the left and a dark estimate panel on the right; the mobile view reflows the same surfaces into a vertical sequence.", "evidence": ["ev-input-desktop-shot", "ev-input-mobile-shot"] },
+    { "id": "obs-category-picker", "kind": "observed", "summary": "The purchase form starts with a country selector and an eight-item area-of-life grid; choosing Food & drink replaces that grid with a Back control and three food item choices.", "evidence": ["ev-input-desktop-shot", "ev-item-picker-desktop-shot", "ev-food-desktop", "ev-item-picker-mobile-shot", "ev-food-mobile"] },
+    { "id": "obs-estimate-result", "kind": "observed", "summary": "After choosing Coffee & drinks and entering 12 USD, the result panel shows about 18 minutes, a 11–29 minute likely range, five leading industries, and a regional breakdown.", "evidence": ["ev-amount-form-desktop-shot", "ev-estimate-desktop-shot", "ev-estimate-mobile-shot", "ev-amount-desktop", "ev-amount-mobile"] },
+    { "id": "obs-saved-record", "kind": "observed", "summary": "Submitting Save this record changes the result to SAVED, adds a Recent records row for the coffee purchase, and exposes View dashboard; the URL remains #input.", "evidence": ["ev-save-desktop", "ev-save-mobile", "ev-saved-result-desktop-shot", "ev-saved-result-mobile-shot"] },
+    { "id": "obs-dashboard", "kind": "observed", "summary": "The saved record can be opened in Dashboard, where the combined summary shows about 18 minutes, one saved purchase, inside/outside purchase-region percentages, industry and region breakdowns, period filters, and the record list.", "evidence": ["ev-dashboard-link-desktop", "ev-dashboard-link-mobile", "ev-dashboard-desktop-shot", "ev-dashboard-mobile-shot", "ev-dashboard-desktop-full-shot", "ev-dashboard-mobile-full-shot"] },
+    { "id": "obs-responsive-reflow", "kind": "observed", "summary": "At 390px the landing content, how-it-works cards, form, result, and dashboard stack vertically; desktop keeps the main hero and form/result surfaces wide and side by side.", "evidence": ["ev-landing-desktop-full-shot", "ev-landing-mobile-full-shot", "ev-input-desktop-full-shot", "ev-input-mobile-full-shot", "ev-dashboard-desktop-full-shot", "ev-dashboard-mobile-full-shot"] }
+  ],
+  "journeys": [
+    {
+      "id": "journey-record-purchase",
+      "title": "Record a purchase and see the work estimate",
+      "entry": {
+        "description": "The About landing page with the hero Add a purchase action and the 2022 data context.",
+        "status": "observed",
+        "evidence": ["ev-landing-desktop-shot", "ev-landing-mobile-shot"]
+      },
+      "steps": [
+        {
+          "action": "Click Add a purchase",
+          "destination": "Record a purchase form",
+          "outcome": "The #input route shows the purchase-region selector, eight areas of life, an empty estimate panel, and no saved record.",
+          "status": "observed",
+          "evidence": ["ev-add-record-desktop", "ev-add-record-mobile", "ev-input-desktop-shot", "ev-input-mobile-shot"]
+        },
+        {
+          "action": "Choose Food & drink",
+          "destination": "Food & drink item picker",
+          "outcome": "The area grid is replaced by Back plus Coffee & drinks, Eating out, delivery & restaurants, and Groceries & food.",
+          "status": "observed",
+          "evidence": ["ev-food-desktop", "ev-food-mobile", "ev-item-picker-desktop-shot", "ev-item-picker-mobile-shot"]
+        },
+        {
+          "action": "Choose Coffee & drinks",
+          "destination": "Coffee & drinks amount form",
+          "outcome": "The form exposes an amount field with USD currency text and a Save this record action.",
+          "status": "observed",
+          "evidence": ["ev-coffee-desktop", "ev-coffee-mobile", "ev-amount-form-desktop-shot", "ev-amount-form-mobile-shot"]
+        },
+        {
+          "action": "Enter 12 in the amount field",
+          "destination": "Live estimate preview",
+          "outcome": "The estimate panel updates to United States · Food & drink › Coffee & drinks · $12 USD and about 18 minutes of work, with a 11–29 minute likely range and industry/region breakdowns.",
+          "status": "observed",
+          "evidence": ["ev-amount-desktop", "ev-amount-mobile", "ev-estimate-desktop-shot", "ev-estimate-mobile-shot"]
+        },
+        {
+          "action": "Submit Save this record",
+          "destination": "Saved result on #input",
+          "outcome": "The estimate is marked SAVED and Recent records contains the $12 USD Coffee & drinks record at about 18 minutes; View dashboard is available as the next route.",
+          "status": "observed",
+          "evidence": ["ev-save-desktop", "ev-save-mobile", "ev-saved-result-desktop-shot", "ev-saved-result-mobile-shot"]
+        }
+      ],
+      "outcome": "A purchase record is saved in the browser and its estimated work time, industries, and regions are visible. Dashboard is an observed follow-on route, but it is outside this selected journey.",
+      "status": "observed",
+      "evidence": ["ev-saved-result-desktop-full-shot", "ev-saved-result-mobile-full-shot"]
+    }
+  ],
+  "limitations": [
+    "The capture used a fresh browser context and a representative United States · Food & drink › Coffee & drinks · $12 USD input; other categories and countries were not walked end to end.",
+    "The source loads its estimation data client-side. The screenshots document rendered states after the data became available; the loading placeholder was not selected as a journey state.",
+    "Hover was swept on the landing CTA, but no hover-only content or route was observed.",
+    "The site owner authorized this demo capture. Screenshots remain research evidence, not source assets for visual cloning; unrelated third-party material visible in them retains its own rights."
+  ]
+}

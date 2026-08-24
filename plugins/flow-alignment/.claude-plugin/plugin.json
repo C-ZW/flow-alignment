@@ -1,0 +1,12 @@
+{
+  "name": "flow-alignment",
+  "description": "Research public website journeys and build clickable alignment wireframes.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Flow Alignment contributors"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/C-ZW/flow-alignment",
+  "repository": "https://github.com/C-ZW/flow-alignment",
+  "keywords": ["user-flow", "wireframe", "ux-research", "prototype"]
+}

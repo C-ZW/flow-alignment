@@ -1,0 +1,130 @@
+<div id="state-views" hidden>
+  <template data-flow="behind-your-day-purchase" data-state="about-home">
+    <div class="landing-view">
+      <p class="view-eyebrow">See the work behind spending</p>
+      <h1 class="view-title">See the work across borders that supports everyday life.</h1>
+      <p class="lead">Enter an everyday purchase. This estimate attributes work across raw materials, production, transport, and services.</p>
+      <div class="fact-strip" aria-label="Data context"><strong>80</strong> economies + rest of world <span>•</span> <strong>50</strong> industries <span>•</span> <strong>2022</strong> data year</div>
+      <div class="landing-callout" data-spotlight="entry-cta">
+        <p><strong>Start with one purchase.</strong><br><small>See the work behind it.</small></p>
+        <button class="btn-sketch-primary" type="button" data-goto="purchase-form">Add a purchase <span aria-hidden="true">→</span></button>
+      </div>
+      <div class="how-strip" aria-label="How it works">
+        <div><span>01</span><strong>Enter a purchase</strong><small>Where you spent, what you bought, and how much it cost.</small></div>
+        <div><span>02</span><strong>Estimate work time</strong><small>Global industry, employment, and working-hours data.</small></div>
+        <div><span>03</span><strong>See where it comes from</strong><small>Industries and regions across the supply chain.</small></div>
+      </div>
+    </div>
+  </template>
+
+  <template data-flow="behind-your-day-purchase" data-state="purchase-form">
+    <div class="route-intro">
+      <p class="view-eyebrow">Add record</p>
+      <h1 class="view-title">Record a purchase</h1>
+      <p class="lead">Choose the purchase region, area of life, and item, then enter the amount to estimate attributed work.</p>
+    </div>
+    <div class="purchase-layout">
+      <section class="form-panel" aria-label="Purchase choices">
+        <p class="panel-kicker">Two-level categories</p>
+        <h2>Record this purchase</h2>
+        <label class="field-label" for="purchase-region">Where did this purchase happen?</label>
+        <select id="purchase-region" aria-label="Purchase region"><option>United States · USA</option></select>
+        <p class="field-note">Purchase region affects the supply-chain structure. Amount currency keeps its original currency.</p>
+        <div class="purchase-choice" data-spotlight="purchase-choice">
+          <p class="field-label">Which part of life does this purchase belong to?</p>
+          <div class="category-grid">
+            <button class="category-button category-live" type="button" data-goto="food-item-picker"><span>◉</span> Food &amp; drink</button>
+            <div class="category-button"><span>↗</span> Transport</div>
+            <div class="category-button"><span>▣</span> Shopping</div>
+            <div class="category-button"><span>⌂</span> Housing &amp; bills</div>
+            <div class="category-button"><span>☁</span> Digital &amp; subscriptions</div>
+            <div class="category-button"><span>＋</span> Health &amp; learning</div>
+            <div class="category-button"><span>◇</span> Leisure &amp; travel</div>
+            <div class="category-button"><span>□</span> Other services</div>
+          </div>
+        </div>
+      </section>
+      <aside class="estimate-panel estimate-empty" aria-label="Estimated result">
+        <p class="panel-kicker">Estimated result</p>
+        <div class="estimate-orbit" aria-hidden="true">＋</div>
+        <h2>Enter an amount to see work time</h2>
+        <p>You will see the estimated work attributed to this purchase and its main industries and regions.</p>
+      </aside>
+    </div>
+  </template>
+
+  <template data-flow="behind-your-day-purchase" data-state="food-item-picker">
+    <div class="route-intro">
+      <p class="view-eyebrow">Add record / Food &amp; drink</p>
+      <h1 class="view-title">Choose the closest item</h1>
+      <p class="lead">Use the item that best describes this representative purchase.</p>
+    </div>
+    <div class="item-picker" data-spotlight="food-items">
+      <button class="btn-sketch-secondary back-action" type="button" data-goto="purchase-form">← Back to areas</button>
+      <div class="item-grid">
+        <button class="item-card item-live" type="button" data-goto="amount-form"><span class="item-icon">☕</span><strong>Coffee &amp; drinks</strong><small>Representative item</small></button>
+        <div class="item-card"><span class="item-icon">🍚</span><strong>Eating out, delivery &amp; restaurants</strong><small>Not walked in this branch</small></div>
+        <div class="item-card"><span class="item-icon">🥬</span><strong>Groceries &amp; food</strong><small>Not walked in this branch</small></div>
+      </div>
+    </div>
+  </template>
+
+  <template data-flow="behind-your-day-purchase" data-state="amount-form">
+    <div class="route-intro">
+      <p class="view-eyebrow">Add record / Coffee &amp; drinks</p>
+      <h1 class="view-title">How much did you spend?</h1>
+      <p class="lead">The amount keeps its original currency. Enter the representative value used in this walkthrough.</p>
+    </div>
+    <div class="amount-layout">
+      <section class="form-panel amount-card" aria-label="Amount entry" data-spotlight="amount-entry">
+        <label class="field-label" for="purchase-amount">Amount currency · USD</label>
+        <div class="amount-input" aria-label="Amount in USD"><span>$</span><span class="amount-static">12</span><span>USD</span></div>
+        <p class="field-note">We use the latest available CPI associated with USD to approximate 2022 prices.</p>
+        <p class="tiny-note">The source preview updates as the amount is entered.</p>
+        <button class="btn-sketch-primary" type="button" data-goto="saved-estimate">Save this record <span aria-hidden="true">→</span></button>
+      </section>
+      <aside class="estimate-panel estimate-preview" aria-label="Estimate preview">
+        <p class="panel-kicker">Estimated result</p>
+        <p class="result-context">United States · Food &amp; drink › Coffee &amp; drinks · $12 USD</p>
+        <p class="preview-message">About <strong>18 minutes</strong> of work once the amount is entered.</p>
+        <p class="field-note">Likely range: 11 minutes–29 minutes</p>
+      </aside>
+    </div>
+  </template>
+
+  <template data-flow="behind-your-day-purchase" data-state="saved-estimate">
+    <div class="saved-view">
+      <div class="saved-summary" data-spotlight="saved-result">
+        <div class="saved-heading">
+          <div>
+            <p class="view-eyebrow">Estimated result</p>
+            <p class="result-context">United States · Food &amp; drink › Coffee &amp; drinks · $12 USD</p>
+          </div>
+          <span class="saved-badge">Saved</span>
+        </div>
+        <div class="result-hero"><span>About</span><strong>18 minutes</strong><span>of work</span></div>
+        <p class="result-subline">0.3 person-hours (one person working for one hour) · Likely range: 11 minutes–29 minutes</p>
+      </div>
+      <div class="breakdown-grid">
+        <section class="breakdown-card">
+          <h2>Which industries does the work come from?</h2>
+          <div class="share-row"><span>Retail, food &amp; accommodation</span><strong>13 minutes · 70%</strong></div>
+          <div class="share-row"><span>Information &amp; professional services</span><strong>2 minutes · 9%</strong></div>
+          <div class="share-row"><span>Agriculture, forestry &amp; fishing</span><strong>2 minutes · 9%</strong></div>
+          <div class="share-row"><span>Manufacturing</span><strong>1 minute · 7%</strong></div>
+          <div class="share-row"><span>Transport &amp; logistics</span><strong>1 minute · 3%</strong></div>
+        </section>
+        <section class="breakdown-card">
+          <h2>Where does the work happen?</h2>
+          <div class="region-bar"><span></span><i></i><i></i><i></i></div>
+          <div class="region-legend"><span>United States 79%</span><span>India 4%</span><span>China 3%</span><span>Indonesia 1%</span><span>Other regions 12%</span></div>
+          <p class="field-note">Source-data coverage is relatively complete; the result is still an estimate.</p>
+        </section>
+      </div>
+      <div class="recent-record">
+        <div><p class="panel-kicker">Saved / Recent records</p><strong>Food &amp; drink › Coffee &amp; drinks</strong><small>United States · $12 USD</small></div>
+        <strong>About 18 minutes</strong>
+      </div>
+    </div>
+  </template>
+</div>

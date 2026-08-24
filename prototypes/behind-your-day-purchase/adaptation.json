@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "id": "behind-your-day-purchase",
+  "reference": {
+    "path": "references/behind-your-day/reference.json",
+    "id": "behind-your-day"
+  },
+  "adaptations": [
+    {
+      "flowId": "behind-your-day-purchase",
+      "journeyId": "journey-record-purchase",
+      "mode": "wireframe",
+      "task": "The person wants to record a representative purchase and see how much supply-chain work Behind Your Day estimates behind it.",
+      "preserve": [
+        "The observed direct-URL-to-Add-record journey",
+        "The area → item → amount → estimate → save decision sequence",
+        "Purchase region, amount/currency, estimate range, industry breakdown, regional breakdown, and saved-record context"
+      ],
+      "abstract": [
+        "Behind Your Day branding, logo, exact colors, and decorative icons",
+        "Long source copy, legal/privacy text, and source imagery",
+        "Unwalked category branches and the separate Dashboard route"
+      ],
+      "assumptions": [
+        "The prototype uses the observed United States · Food & drink · Coffee & drinks · $12 USD path as a representative branch; the other visible categories remain review questions.",
+        "The amount input and live estimate preview are represented in one static low-fidelity amount state; the walkthrough calls out that the source preview updates while typing.",
+        "The saved result is the selected journey boundary even though the source exposes an observed View dashboard follow-on link."
+      ],
+      "claims": [
+        "This is an evidence-backed alignment wireframe for one documented public journey, not a reproduction of the source website.",
+        "Source screenshots remain research evidence only; the prototype uses neutral sketchbook markup and deterministic example data."
+      ]
+    }
+  ]
+}
