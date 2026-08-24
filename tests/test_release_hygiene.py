@@ -15,13 +15,16 @@ class ReleaseHygiene(unittest.TestCase):
 
     def test_readme_installation_uses_the_public_marketplace(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        quick_install = readme.split("## Quick install", 1)[1].split(
+            "## Skills", 1
+        )[0]
         self.assertIn(
             "claude plugin marketplace add C-ZW/flow-alignment",
-            readme,
+            quick_install,
         )
         self.assertIn(
             "codex plugin marketplace add C-ZW/flow-alignment",
-            readme,
+            quick_install,
         )
         self.assertIn(
             "codex plugin marketplace upgrade flow-alignment",
@@ -32,6 +35,18 @@ class ReleaseHygiene(unittest.TestCase):
         self.assertNotIn("/absolute/path/to/flow-alignment", readme)
         self.assertNotIn("cp -R .claude/skills", readme)
         self.assertNotIn("git pull\ncodex plugin add", readme)
+
+    def test_pages_workflow_deploys_the_standalone_demo(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        workflow = (ROOT / ".github/workflows/pages.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("[Live prototype](https://c-zw.github.io/flow-alignment/)", readme)
+        self.assertIn("prototypes/behind-your-day-purchase/prototype.html", workflow)
+        self.assertIn("actions/upload-pages-artifact@v4", workflow)
+        self.assertIn("actions/deploy-pages@v4", workflow)
+        self.assertIn("pages: write", workflow)
+        self.assertIn("id-token: write", workflow)
 
     def test_plugin_has_stable_version_and_license(self):
         plugin = ROOT / "plugins" / "flow-alignment"

@@ -10,6 +10,26 @@ The artifact is not a product demo and does not prove that a journey is correct.
 It makes the declared route concrete enough for the people responsible for it to
 correct an entry point, branch, transition, outcome, or unsupported assumption.
 
+## Quick install
+
+Claude Code:
+
+```bash
+claude plugin marketplace add C-ZW/flow-alignment
+claude plugin install flow-alignment@flow-alignment
+```
+
+Codex CLI:
+
+```bash
+codex plugin marketplace add C-ZW/flow-alignment
+codex plugin add flow-alignment@flow-alignment
+```
+
+Start a new Claude Code session or Codex thread after installation. See
+[Installation](#installation) for prerequisites, updates, removal, and local
+development.
+
 ## Skills
 
 | Skill | Input | Output |
@@ -46,10 +66,10 @@ not a source-site screenshot.
 
 | Behind Your Day · purchase-to-work estimate |
 | :--- |
-| [<img src="prototypes/behind-your-day-purchase/screenshots/readme-preview.png" alt="Low-fidelity Behind Your Day purchase journey with the Add a purchase action focused" width="880">](prototypes/behind-your-day-purchase/prototype.html) |
+| [<img src="prototypes/behind-your-day-purchase/screenshots/readme-preview.png" alt="Low-fidelity Behind Your Day purchase journey with the Add a purchase action focused" width="880">](https://c-zw.github.io/flow-alignment/) |
 | **Observed route**<br>About → Add a purchase → Food & drink → Coffee & drinks → enter `$12 USD` → save the estimate |
 | **Evidence boundary**<br>One representative purchase branch was observed on desktop and mobile. Other categories and the Dashboard follow-on remain outside this selected journey. |
-| [Prototype](prototypes/behind-your-day-purchase/prototype.html) · [Flow](prototypes/behind-your-day-purchase/flow.json) · [Walkthrough](prototypes/behind-your-day-purchase/walkthrough.md)<br>[Reference](references/behind-your-day/reference.json) · [Evidence](references/behind-your-day/evidence.md) · [Adaptation](prototypes/behind-your-day-purchase/adaptation.json) |
+| [Live prototype](https://c-zw.github.io/flow-alignment/) · [Flow](prototypes/behind-your-day-purchase/flow.json) · [Walkthrough](prototypes/behind-your-day-purchase/walkthrough.md)<br>[Reference](references/behind-your-day/reference.json) · [Evidence](references/behind-your-day/evidence.md) · [Adaptation](prototypes/behind-your-day-purchase/adaptation.json) |
 
 ### Case manifest
 

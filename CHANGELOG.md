@@ -6,6 +6,11 @@ All notable changes to this project will be documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Added a copy-ready installation block near the top of the README and a GitHub
+  Pages deployment for the interactive Behind Your Day example.
+
 ### Fixed
 
 - Replaced checkout-specific installation placeholders with public Git
