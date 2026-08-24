@@ -91,10 +91,9 @@ validates them, and re-walks the route.
 
 ## Installation
 
-Prerequisites depend on the installation path:
+Installation requires Git and a current Claude Code or Codex CLI. Running the
+skills also requires:
 
-- Git to clone and update the repository;
-- Claude Code or Codex CLI;
 - Python 3.10 or later; deterministic validators and tests use only the standard
   library;
 - a browser or capture-capable agent for website research and desktop/narrow
@@ -104,68 +103,52 @@ Prerequisites depend on the installation path:
 
 ### Claude Code
 
-For local marketplace installation from this checkout:
+Add the published marketplace and install the plugin:
 
 ```bash
-claude plugin marketplace add /absolute/path/to/flow-alignment
+claude plugin marketplace add C-ZW/flow-alignment
 claude plugin install flow-alignment@flow-alignment
 ```
 
-Clone it with `gh repo clone C-ZW/flow-alignment`, then replace the path above
-with its checkout location. Start a new Claude Code
-session after installation. Invoke
+Start a new Claude Code session after installation. Invoke
 `/flow-alignment:website-flow-reference` or
 `/flow-alignment:flow-alignment-prototype`, or describe a matching task and
 let Claude select the skill.
 
-After the repository becomes public, use `C-ZW/flow-alignment` instead of the
-local path. Claude Code discovers `.claude/skills/` directly when
-it starts inside an uninstalled checkout as well.
-
-Refresh or remove the installation with:
+Update the marketplace snapshot and installed plugin:
 
 ```bash
 claude plugin marketplace update flow-alignment
 claude plugin update flow-alignment@flow-alignment
+```
 
+Remove the plugin and marketplace:
+
+```bash
 claude plugin uninstall flow-alignment@flow-alignment
 claude plugin marketplace remove flow-alignment
 ```
 
-For a personal installation available across projects, copy each complete skill
-directory:
-
-```bash
-mkdir -p ~/.claude/skills
-cp -R .claude/skills/website-flow-reference ~/.claude/skills/
-cp -R .claude/skills/flow-alignment-prototype ~/.claude/skills/
-```
-
-See the official
-[Claude Code skills documentation](https://code.claude.com/docs/en/skills) for
-project, personal, and plugin scopes.
-
-The repository includes separate Claude and Codex marketplace manifests around
-the same generated plugin skills. See the official
-[Claude Code marketplace documentation](https://code.claude.com/docs/en/plugin-marketplaces).
+See the official [Claude Code plugin installation documentation](https://code.claude.com/docs/en/discover-plugins)
+and [marketplace documentation](https://code.claude.com/docs/en/plugin-marketplaces).
 
 ### Codex CLI
 
-Register the local marketplace and install its plugin:
+Add the published marketplace and install the plugin:
 
 ```bash
-codex plugin marketplace add /absolute/path/to/flow-alignment
+codex plugin marketplace add C-ZW/flow-alignment
 codex plugin add flow-alignment@flow-alignment
 ```
 
 Start a new Codex thread after installation. The plugin bundles both skills and
-they can be invoked independently or chained. See the official
-[Codex plugin documentation](https://learn.chatgpt.com/docs/plugins).
+they can be invoked independently or chained.
 
-After pulling a newer repository release, reinstall the cached plugin:
+Refresh the Git marketplace snapshot, then reinstall the cached plugin:
 
 ```bash
-git pull
+codex plugin marketplace upgrade flow-alignment
+codex plugin remove flow-alignment@flow-alignment
 codex plugin add flow-alignment@flow-alignment
 ```
 
@@ -174,6 +157,33 @@ Remove the plugin and local marketplace registration with:
 ```bash
 codex plugin remove flow-alignment@flow-alignment
 codex plugin marketplace remove flow-alignment
+```
+
+See the official [OpenAI plugin documentation](https://learn.chatgpt.com/docs/plugins)
+and [plugin packaging and marketplace documentation](https://developers.openai.com/plugins/build/plugins).
+
+### Local development
+
+Clone the repository and work from its root:
+
+```bash
+gh repo clone C-ZW/flow-alignment
+cd flow-alignment
+```
+
+Claude Code discovers the canonical skills under `.claude/skills/` when a new
+session starts in the checkout. To exercise the packaged marketplace instead,
+register `./` as the marketplace source with either CLI; do not replace `./` with
+the `.claude-plugin/`, `.agents/`, or `plugins/flow-alignment/` subdirectory.
+
+```bash
+# Claude Code, local to this checkout
+claude plugin marketplace add ./ --scope local
+claude plugin install flow-alignment@flow-alignment --scope local
+
+# Codex CLI
+codex plugin marketplace add ./
+codex plugin add flow-alignment@flow-alignment
 ```
 
 ## Ask an agent

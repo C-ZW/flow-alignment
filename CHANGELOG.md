@@ -6,6 +6,12 @@ All notable changes to this project will be documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Replaced checkout-specific installation placeholders with public Git
+  marketplace commands for Claude Code and Codex CLI, and corrected the Codex
+  marketplace refresh and reinstall sequence.
+
 ## [0.1.0] - 2026-08-24
 
 ### Added

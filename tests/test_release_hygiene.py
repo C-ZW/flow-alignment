@@ -13,6 +13,26 @@ class ReleaseHygiene(unittest.TestCase):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertNotIn("<repository" + "-url>", readme)
 
+    def test_readme_installation_uses_the_public_marketplace(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn(
+            "claude plugin marketplace add C-ZW/flow-alignment",
+            readme,
+        )
+        self.assertIn(
+            "codex plugin marketplace add C-ZW/flow-alignment",
+            readme,
+        )
+        self.assertIn(
+            "codex plugin marketplace upgrade flow-alignment",
+            readme,
+        )
+        self.assertIn("claude plugin marketplace add ./ --scope local", readme)
+        self.assertIn("codex plugin marketplace add ./", readme)
+        self.assertNotIn("/absolute/path/to/flow-alignment", readme)
+        self.assertNotIn("cp -R .claude/skills", readme)
+        self.assertNotIn("git pull\ncodex plugin add", readme)
+
     def test_plugin_has_stable_version_and_license(self):
         plugin = ROOT / "plugins" / "flow-alignment"
         manifest = json.loads(
